@@ -8,8 +8,10 @@
      kind        : "art"（イラスト） / "music"（音楽）
      avatar      : アイコン画像のパス（正方形）。空なら頭文字を表示
      bio         : 一言紹介（1〜2行）
+     cover       : 個別ページの上に敷く横長の画像（任意）
+     message     : 1万人記念に寄せた一言（任意）
      links       : 使うものだけ書く。いちばん上がメインリンクになる
-                   x / pixiv / suno / spotify / youtube / site
+                   x / pixiv / suno / spotify / youtube / booth / skeb / site
 
    ■ PRIZES … 景品（A〜H賞）。合計 count が箱の枚数（いまは100）
      id          : "A1" "H3" など（賞＋番号）
@@ -34,7 +36,10 @@ window.KUJI_DATA = {
 
 collabs: {
   c01: { name:"Collab 01", handle:"collab_01", kind:"art",   avatar:"", bio:"サンプルのコラボ作家さん。", links:{ x:"https://x.com/" } },
-  c02: { name:"Collab 02", handle:"collab_02", kind:"art",   avatar:"", bio:"サンプルのコラボ作家さん。", links:{ x:"https://x.com/", pixiv:"https://www.pixiv.net/" } },
+  c02: { name:"ゆめみ堂（サンプル）", handle:"yumemido_sample", kind:"art", avatar:"assets/mayuu.jpg", cover:"assets/riu.jpg",
+         bio:"パステルと少しの毒が好きなイラストレーター。しゅがけのキャラを描くのは今回がはじめて。",
+         message:"1万人おめでとうございます！ずっと見てた世界にお邪魔できてうれしいです。B賞の子は、いちばん描きたかった表情で描きました。",
+         links:{ x:"https://x.com/", pixiv:"https://www.pixiv.net/", booth:"https://booth.pm/" } },
   c03: { name:"Collab 03", handle:"collab_03", kind:"music", avatar:"", bio:"Suno で曲を作っているサンプルの音楽家さん。", links:{ suno:"https://suno.com/", spotify:"https://open.spotify.com/", x:"https://x.com/" } },
   c04: { name:"Collab 04", handle:"collab_04", kind:"art",   avatar:"", bio:"サンプルのコラボ作家さん。", links:{ x:"https://x.com/" } },
   c05: { name:"Collab 05", handle:"collab_05", kind:"art",   avatar:"", bio:"サンプルのコラボ作家さん。", links:{ x:"https://x.com/" } },

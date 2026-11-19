@@ -135,7 +135,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 .ctabs{position:absolute;left:12px;right:12px;top:86px;display:flex;gap:6px;background:rgba(255,255,255,.5);border-radius:999px;padding:4px;z-index:20}
 .ctabs button{flex:1;height:36px;border:none;border-radius:999px;background:none;font:inherit;font-weight:800;font-size:13px;color:var(--mute);cursor:pointer}
 .ctabs button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(42,27,82,.1)}
-.cbody{position:absolute;left:0;right:0;top:136px;bottom:0;overflow-y:auto;padding:4px 14px 100px}
+.cbody{position:absolute;left:0;right:0;top:136px;bottom:0;overflow-y:auto;scrollbar-width:none;padding:4px 14px 100px}
 .cbody.csub{top:86px}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tile{height:136px;border-radius:26px;background:#fff;position:relative;padding:12px 14px;overflow:hidden;cursor:pointer}
@@ -263,6 +263,17 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 .ltag{position:absolute;z-index:245;width:max-content;background:#fff;border-radius:999px;padding:7px 14px;font-weight:900;font-size:13px;color:var(--ink);box-shadow:0 8px 20px rgba(42,27,82,.25);animation:ltag 2.4s ease-out forwards;pointer-events:none}
 .ltag.top{background:linear-gradient(90deg,#fff6d6,#efc35a)}
 @keyframes ltag{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1)}75%{opacity:1;transform:translate(-50%,-30px)}100%{opacity:0;transform:translate(-50%,-50px)}}
+.ap{display:flex;flex-direction:column;align-items:center;padding-bottom:20px}
+.aph{width:100%;height:150px;border-radius:26px;background:linear-gradient(135deg,#e9dff8,#c3a9ee)}
+.aph[style*="--img"]{background:var(--img) center 25%/cover}
+.apa{margin-top:-52px}.apa .av{box-shadow:0 0 0 5px var(--t2),0 10px 24px rgba(42,27,82,.2)}
+.apn{display:flex;flex-direction:column;align-items:center;margin-top:10px;gap:2px}.apn b{font-size:20px}.apn span{font-size:12px;color:var(--mute)}
+.apn em{font-style:normal;font-size:10px;font-weight:900;border-radius:999px;padding:2px 8px;margin-top:4px;background:var(--t1);color:var(--mute)}.apn em.music{background:var(--ink);color:#fff}
+.apb{font-size:13px;line-height:1.7;text-align:center;margin:12px 6px 0}
+.apl{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.apl button{border:none;background:#fff;border-radius:999px;padding:10px 16px;font:inherit;font-weight:800;font-size:13px;color:var(--ink);cursor:pointer;box-shadow:0 4px 12px rgba(42,27,82,.08)}
+.apm{width:100%;margin-top:16px;background:#fff;border-radius:22px;padding:14px 16px}.apm small{font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--mute)}.apm p{margin:6px 0 0;font-size:13px;line-height:1.7}
+.apw{width:100%;margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 /* 剥く */
 #tearCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 @keyframes landIn{0%{transform:scale(1.25)}100%{transform:none}}
@@ -1039,19 +1050,32 @@ const SVC={suno:"Suno",spotify:"Spotify",youtube:"YouTube",x:"X",pixiv:"pixiv",s
 const mainLink=c=>c?Object.values(c.links||{})[0]||"":"";
 let cStack=[],cPrev="scCarton",cAudio=null;
 function visit(url,key){if(!url)return;window.open(url,"_blank","noopener");if(key&&!me.links[me.cycle+key]){me.links[me.cycle+key]=1;me.next=0;saveMe();}}
-function avatar(c,size){if(!c)return"";if(c.avatar)return`<span class="av" style="width:${size}px;height:${size}px;background-image:url(${c.avatar})"></span>`;
+function avatar(c,size){if(!c)return"";if(c.avatar)return`<span class="av" style="width:${size}px;height:${size}px;background:url(${c.avatar}) center 20%/cover"></span>`;
   const hue=[...c.name].reduce((a,ch)=>a+ch.charCodeAt(0),0)%360;return`<span class="av" style="width:${size}px;height:${size}px;background:hsl(${hue} 55% 82%);font-size:${size*.42}px">${c.name.slice(0,1)}</span>`;}
 function openColl(view="top",arg){cPrev=[...document.querySelectorAll(".scene")].find(s=>s.classList.contains("on"))?.id||"scCarton";cStack=[];collGo(view,arg);scene("scColl");}
 function collGo(view,arg,replace){stopAudio();if(replace)cStack.pop();cStack.push([view,arg]);renderColl();}
 function collBack(){stopAudio();cStack.pop();if(!cStack.length){scene(cPrev);if(cPrev==="scResult")setAgain();return;}renderColl();}
 function stopAudio(){if(cAudio){cAudio.pause();cAudio=null;}}
 const owned=w=>!!me.coll[w.id];
+const LINKN={x:"X",pixiv:"pixiv",suno:"Suno",spotify:"Spotify",youtube:"YouTube",site:"Web",booth:"BOOTH",skeb:"Skeb"};
+function renderArtist(el,id){const c=COLLABS[id],ws=WORKS.filter(w=>w.collab===id);
+  $("zTitle").innerHTML=c.name;$("cRight").textContent="";
+  el.innerHTML=`<div class="ap">
+    <div class="aph" style="${c.cover?`--img:url(${c.cover})`:""}"></div>
+    <div class="apa">${avatar(c,96)}</div>
+    <div class="apn"><b>${c.name}</b><span>@${c.handle}</span><em class="${c.kind}">${CL[c.kind]||""}</em></div>
+    ${c.bio?`<p class="apb">${c.bio}</p>`:""}
+    <div class="apl">${Object.entries(c.links||{}).filter(([k,u])=>u).map(([k,u])=>`<button data-u="${u}">${LINKN[k]||k} ↗</button>`).join("")}</div>
+    ${c.message?`<div class="apm"><small>${JA?"1万人記念に寄せて":"A note for the 10K"}</small><p>${c.message}</p></div>`:""}
+    <div class="apw">${ws.map(w=>`<div class="pk2" data-id="${w.id}">${owned(w)?`<div class="ph2" style="background-image:url(${w.img})">${w.type==="music"?'<span class="mu">♪</span>':""}</div>`:`<div class="em">${w.tier}</div>`}</div>`).join("")}</div></div>`;
+  el.querySelectorAll(".apl button").forEach(b=>b.onclick=()=>visit(b.dataset.u,"c_"+id));
+  el.querySelectorAll(".apw .pk2").forEach(d=>d.onclick=()=>collGo("prize",d.dataset.id));}
 function renderColl(){
   const [view,arg]=cStack[cStack.length-1],root=cStack.length===1,el=$("cBody"),have=WORKS.filter(owned).length;
   $("cBack").textContent=root?"×":"‹";$("cTabs").style.display=root?"":"none";el.className="cbody"+(root?"":" csub");el.scrollTop=0;$("cBar").innerHTML="";
   if(root)[...$("cTabs").children].forEach(b=>b.classList.toggle("on",b.dataset.v===view));
   if(view==="top"){$("zTitle").innerHTML=CL.coll;$("cRight").textContent=`${have} / ${WORKS.length}`;
-    el.innerHTML=`<div class="tctile" id="tcTile" style="${owned(THIEF)?`--img:url(${THIEF.img})`:""}"><b>${TC_ICON} ${JA?TC_JA:TC_EN}</b>${owned(THIEF)?"<span>✓</span>":""}</div><div class="gstrip"><span><i class="coin g"></i><b>${me.gold}</b></span><span><i class="coin s"></i><b>${me.silver}</b><small>/10</small></span></div><div class="tgrid">`+TIERS.map(t=>{const ws=WORKS.filter(w=>w.tier===t),n=ws.filter(owned).length,c=ws.find(owned);
+    el.innerHTML=`<div class="gstrip"><span><i class="coin g"></i><b>${me.gold}</b></span><span><i class="coin s"></i><b>${me.silver}</b><small>/10</small></span></div><div class="tctile" id="tcTile" style="${owned(THIEF)?`--img:url(${THIEF.img})`:""}"><b>${TC_ICON} ${JA?TC_JA:TC_EN}</b>${owned(THIEF)?"<span>✓</span>":""}</div><div class="tgrid">`+TIERS.map(t=>{const ws=WORKS.filter(w=>w.tier===t),n=ws.filter(owned).length,c=ws.find(owned);
       return `<div class="tile" data-t="${t}" style="${c?`--img:url(${c.img})`:""}"><b>${t}</b><span class="tn">${n}/${ws.length}</span>${n===ws.length?'<span class="cmp">COMPLETE</span>':""}<div class="tb">${ws.map(w=>`<i class="${owned(w)?"on":""}"></i>`).join("")}</div></div>`;}).join("")+`</div>`;
     el.querySelectorAll(".tile").forEach(d=>d.onclick=()=>collGo("tier",d.dataset.t));$("tcTile").onclick=()=>collGo("prize","TC");
 }
@@ -1071,7 +1095,7 @@ function renderColl(){
       <div class="pzt">${ok?w.title:"？？？"}${mu?` <em>♪ ${CL.music}</em>`:""}</div>
       ${ok&&w.comment?`<p class="pzm">${w.comment}</p>`:""}
       ${c?`<div class="cc" id="cCollab">${avatar(c,44)}<div><small>${CL.by}</small><b>${c.name}</b><span>@${c.handle}</span></div><i>↗</i></div>`:""}</div>`;
-    if(c)$("cCollab").onclick=()=>visit(mainLink(c),"c_"+w.collab);
+    if(c)$("cCollab").onclick=()=>collGo("artist",w.collab);
     if(ok){const btns=mu?Object.entries(w.full||{}).filter(([k,u])=>u).slice(0,2).map(([k,u])=>[CL.listen(SVC[k]||k),u]):(c?[[CL.artist,mainLink(c)]]:[]);
       $("cBar").innerHTML=btns.map(([l,u],i)=>`<button class="btn${i===btns.length-1?" main":""}" data-u="${u}">${l} ↗</button>`).join("");
       $("cBar").querySelectorAll("button").forEach(b=>b.onclick=()=>visit(b.dataset.u,"c_"+w.collab));}
@@ -1082,7 +1106,8 @@ function renderColl(){
   if(view==="artists"){$("zTitle").innerHTML=CL.artists;$("cRight").textContent=Object.keys(COLLABS).length;
     el.innerHTML=`<div class="alist">`+Object.entries(COLLABS).map(([id,c])=>{const ws=WORKS.filter(w=>w.collab===id);
       return `<div class="ar" data-id="${id}">${avatar(c,52)}<div class="ai"><b>${c.name} <em class="${c.kind}">${CL[c.kind]||""}</em></b><span>@${c.handle}</span>${c.bio?`<p>${c.bio}</p>`:""}<div class="aw">${ws.map(w=>`<i class="${owned(w)?"on":""}">${w.tier}</i>`).join("")}</div></div><span class="go">↗</span></div>`;}).join("")+`</div>`;
-    el.querySelectorAll(".ar").forEach(d=>d.onclick=()=>visit(mainLink(COLLABS[d.dataset.id]),"c_"+d.dataset.id));}
+    el.querySelectorAll(".ar").forEach(d=>d.onclick=()=>collGo("artist",d.dataset.id));}
+  if(view==="artist"){renderArtist(el,arg);}
   if(view==="mine"){$("zTitle").innerHTML=CL.mine;$("cRight").textContent="";
     el.innerHTML=`<div class="mlist"><img class="mlogo" src="assets/logo.png" alt="">`+MINE.map((m,i)=>`<div class="mi" data-i="${i}">${m.img?`<span class="mim" style="background-image:url(${m.img})"></span>`:""}<div><b>${m.label}</b><span>${m.desc||""}</span></div><i>↗</i></div>`).join("")+`</div>`;
     el.querySelector(".mlist").insertAdjacentHTML("beforeend",`<div class="mi" id="cSnd"><div><b>${CL.sound}</b></div><i style="font-size:20px">${muted?"🔇":"🔊"}</i></div>`);
