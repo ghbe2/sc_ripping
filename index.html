@@ -28,7 +28,8 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 
 .stage{position:relative;height:540px;margin-top:6px;user-select:none;-webkit-user-select:none}
 .scene{position:absolute;inset:0;display:none}
-.scene.on{display:block}
+.scene.on{display:block;animation:scIn .35s ease both}
+@keyframes scIn{from{opacity:0}to{opacity:1}}
 .title{text-align:center;font-size:14px;font-weight:700;margin:14px 0 0;letter-spacing:.04em;min-height:20px}
 .title small{display:block;font-weight:400;font-size:11px;color:var(--mute);margin-top:3px;letter-spacing:.02em}
 
@@ -103,6 +104,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 #scResult.on{display:flex}
 .rbg{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 38%,#4a3290,#1d1238 75%);z-index:0}
 #scResult>*:not(.rbg){position:relative;z-index:1}
+#scResult .rbody{padding-bottom:96px}
 #scResult>.rbar{position:absolute}
 #scResult.on .rbg{animation:rFade .8s ease both}
 #scResult.on .rhd,#scResult.on .rstat,#scResult.on .rbar{animation:rUp .5s ease both;animation-delay:1.1s}
@@ -117,7 +119,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 .rbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:0}
 #rGrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 #rGrid .rcd{height:calc(100% - 20px)}
-.rstat{display:flex;justify-content:center;align-items:center;gap:14px;height:40px;margin-bottom:84px;font-size:13px;font-weight:700}
+.rstat{display:none;justify-content:center;align-items:center;gap:14px;height:0;margin-bottom:96px;font-size:13px;font-weight:700}
 .rstat b{font-size:20px;font-weight:900}
 .rstat span{display:flex;align-items:center;gap:5px;opacity:.85}
 #scResult .rbar .btn:not(.main){background:rgba(255,255,255,.14);color:#fff}
@@ -246,13 +248,17 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 #dFront .slip.fx::after{animation:toSilver .9s ease .7s both}
 @keyframes toSilver{0%{opacity:0;filter:brightness(2)}60%{opacity:1;filter:brightness(1.6)}100%{opacity:1;filter:none}}
 #scCarton .icard,#scCarton .icta{display:none}
-#scCarton.intro .icard{display:flex}#scCarton.intro .icta{display:block}
+#scCarton.intro .icard{display:flex}
 #scCarton.intro #pile{pointer-events:none}
 .icard{position:absolute;left:24px;right:24px;top:22%;z-index:240;background:#fff;border-radius:32px;padding:24px 20px 22px;flex-direction:column;align-items:center;box-shadow:0 24px 60px rgba(42,27,82,.3);animation:zin .6s cubic-bezier(.2,1.4,.3,1) both}
 .icard img{width:150px}.icard .is{font-size:11px;font-weight:900;letter-spacing:.24em;color:var(--mute);margin-top:6px}
 .icard .ib{font-size:28px;font-weight:900;margin-top:2px}
 .icard .in2{display:flex;align-items:baseline;gap:6px;margin-top:12px;font-weight:900;color:var(--mute)}.icard .in2 b{font-size:48px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}.icard .in2 i{font-style:normal}
-.icta{position:absolute;left:12px;right:12px;bottom:max(16px,env(safe-area-inset-bottom));z-index:240;height:58px;padding:0;box-shadow:0 10px 24px rgba(42,27,82,.25)}
+.icta{position:absolute;left:12px;right:12px;bottom:max(16px,env(safe-area-inset-bottom));z-index:240;gap:10px}
+#scCarton.intro .icta{display:flex}
+.icta .btn{height:58px;padding:0;box-shadow:0 10px 24px rgba(42,27,82,.25)}
+.btn:disabled small{opacity:1}
+.icta .btn:disabled,#bAgain:disabled{opacity:1;background:#a995d6;color:#fff}
 .pp.gone{opacity:0!important;transform:translateY(-60px) scale(.9)!important;transition:transform .5s cubic-bezier(.3,1.4,.4,1),opacity .5s;pointer-events:none}
 .ltag{position:absolute;z-index:245;width:max-content;background:#fff;border-radius:999px;padding:7px 14px;font-weight:900;font-size:13px;color:var(--ink);box-shadow:0 8px 20px rgba(42,27,82,.25);animation:ltag 2.4s ease-out forwards;pointer-events:none}
 .ltag.top{background:linear-gradient(90deg,#fff6d6,#efc35a)}
@@ -299,7 +305,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 .btn small{display:block;font-size:10px;font-weight:400;opacity:.75;letter-spacing:0;margin-top:1px}
 
 .modal{position:fixed;inset:0;background:rgba(217,200,244,.35);display:none;align-items:center;justify-content:center;z-index:20;padding:18px}
-.modal.on{display:flex}
+.modal.on{display:flex;animation:scIn .25s ease both}
 .sheet{width:100%;max-width:380px;max-height:90dvh;overflow:auto;padding:26px 20px 20px;text-align:center;background:var(--card);border:none;border-radius:32px;position:relative;box-shadow:0 12px 40px rgba(42,27,82,.18)}
 .sheet h2{margin:0 0 6px;font-size:22px;font-weight:800;color:var(--ink)}
 .sheet p{margin:6px 0;font-size:12px;color:var(--mute);line-height:1.7}
@@ -323,7 +329,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
       <div class="ptop"><b id="cTitle"></b><div class="pslots" id="pslots"></div><div class="plast">LAST<span id="pLast"></span></div></div>
       <button class="pauto" id="bAuto">Auto</button>
       <div class="icard" id="iCard"><img src="assets/logo.png" alt=""><div class="is">10,000 THANKS</div><div class="ib" id="iTitle"></div><div class="in2"><b id="iLeft"></b><span>/ <i id="iTotal"></i></span></div></div>
-      <button class="btn main icta" id="bStart"></button>
+      <div class="icta"><button class="btn" id="bInvite"></button><button class="btn main" id="bStart"></button></div>
     </div>
     <div class="scene" id="scTear">
       <canvas id="tearCv"></canvas>
@@ -362,15 +368,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
   
   <div style="display:flex;gap:10px;margin-top:10px"><button class="btn gold" id="bGoldGo" style="flex:1"></button><button class="btn main" id="bRoll" style="flex:1"></button></div>
 </div></div>
-<div class="modal" id="mRefill"><div class="sheet">
-  <button class="close" data-close>×</button>
-  <h2 data-t="refill"></h2>
-  <p class="timer" id="rTimer" style="color:var(--ink)"></p>
-  <div style="display:flex;gap:10px;margin-top:14px">
-    <button class="btn" id="bShareRoll" style="flex:1"></button>
-    <button class="btn main" id="bRollNow" style="flex:1" data-t="roll"></button>
-  </div>
-</div></div>
+
 
 <div class="zoom" id="zoom"><div class="zcard" id="zcard"><div class="rank" id="zRank"></div></div><div class="zcap" id="zCap"></div></div>
 <div class="drama" id="drama"><div class="dflip"><div class="in" id="dIn"><div class="f cb"><img src="assets/logo.png" alt=""></div><div class="f front" id="dFront"></div></div></div><div class="dcap" id="dCap"></div></div>
@@ -387,7 +385,7 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 const LINKS={collab:"https://x.com/",etsy:"https://www.etsy.com/shop/SugarCage",patreon:"https://www.patreon.com/sugarcage"};
 const SITE_URL=location.href.split('#')[0];
 const DEMO=true; // サンプル中は回数無制限（本番は false）
-const REFILL_MIN=30, REFILL_MS=DEMO?0:REFILL_MIN*60*1000, MAX_PICK=10, STUCK_RATE=0.2, SHOW_MAX=20;
+const REFILL_MIN=10, REFILL_MS=(DEMO&&!window.KUJI_TEST)?0:REFILL_MIN*60*1000, MAX_PICK=10, STUCK_RATE=0.2, SHOW_MAX=20;
 const RATE_GOLD=0.02, RATE_SILVER=0.05, SILVER_PER_GOLD=10, GOLD_TIERS="CDEFGH";
 // 効果音ファイル（差し替え用）。パスを入れると合成音の代わりに鳴る
 const SOUND_FILES={pick:"assets/sfx/pick.mp3",slide:"",flip:"assets/sfx/flip.mp3",aura:"assets/sfx/shine.mp3",coin:"assets/sfx/coin.mp3",big:"assets/sfx/reveal.mp3",dice:"assets/sfx/dice.mp3",land:"",stuck:"assets/sfx/stuck.mp3",heart:"assets/sfx/heart.mp3",pull:"assets/sfx/pull.mp3"};
@@ -919,7 +917,7 @@ function showResult(){if(MAIN){results=MAIN.concat(results);MAIN=null;THIEF_PEND
   const nNew=results.filter(r=>r.work&&!r.silver).length,have=Object.keys(me.coll).filter(k=>me.coll[k]).length;
   const tk={g:0,s:0};results.forEach(r=>{if(r.ticket)tk[r.ticket]++;if(r.silver)tk.s++;});
   $("rStat").innerHTML=`<b>NEW × ${nNew}</b><span class="rch">${have} / ${WORKS.length} ›</span>`+(tk.g?`<span><i class="coin g"></i>+${tk.g}</span>`:"")+(tk.s?`<span><i class="coin s"></i>+${tk.s}</span>`:"");
-  $("bShare").innerHTML=`${L.share}<small id="sS">${L.plus1}</small>`;
+  $("bShare").innerHTML=`${L.share}<small id="sS"></small>`;
   shareBlob=null;makeShare(list,nNew,have,tk).then(b=>shareBlob=b);
   $("bShare").onclick=doShare;setAgain();$("rStat").onclick=()=>openColl();
   if(hero&&!hero.silver&&"AB".includes(hero.tier))setTimeout(()=>confetti(40),800);
@@ -955,7 +953,7 @@ async function makeShare(list,nNew,have,tk){
   for(let i=0;i<rest.length;i++){const col=i%cols,row=Math.floor(i/cols),inRow=Math.min(cols,rest.length-row*cols),ox=(Wc-(inRow*cw+(inRow-1)*gap))/2;
     await drawCard(rest[i],ox+col*(cw+gap),gy+row*(ch+40+gap),cw,ch,false);}
   x.textAlign="center";x.fillStyle="#fff";x.font="900 60px system-ui,sans-serif";
-  const stat=`NEW × ${nNew}   ·   ${have} / ${WORKS.length}`;x.fillText(stat,Wc/2,Hc-82);
+  
   x.fillStyle="rgba(255,255,255,.55)";x.font="700 30px system-ui,sans-serif";x.fillText(JA?"#しゅがけくじ":"#SugarCageKuji",Wc/2,Hc-34);
   return await new Promise(res=>c.toBlob(res,"image/png"));
 }
@@ -963,15 +961,15 @@ async function doShare(){
   const cnt={};results.forEach(r=>{if(!r.silver)cnt[r.tier]=(cnt[r.tier]||0)+1;});
   const line=TIERS.filter(t=>cnt[t]).map(t=>`${t}×${cnt[t]}`).join(" ");
   const text=L.shareText(results.length,line,results.some(r=>r.thief));
-  const done=()=>{if(bonus(curKey+"s"))$("sS").textContent="✓";};
+  const done=()=>{skipWait();};
   const file=shareBlob&&new File([shareBlob],"sugarcage-kuji.png",{type:"image/png"});
   if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:text+"\n"+SITE_URL});done();}catch(e){}return;}
   // PC等：画像を保存して、𝕏の投稿画面を開く（画像はそこで添付）
   if(file){const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download="sugarcage-kuji.png";a.click();toast(JA?"画像を保存したよ。投稿に添付してね":"Image saved. Add it to your post!");}
   window.open("https://x.com/intent/post?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(SITE_URL),"_blank","noopener");done();
 }
-function setAgain(){const b=$("bAgain");if(!b)return;b.innerHTML=me.draws>0?`${L.again()}<small>${L.againS(me.draws)}</small>`:(DEMO?L.again():L.refill);b.onclick=()=>{me.draws>0?goCarton():(DEMO?openDice():openRefill());};}
-function bonus(k){if(me.bonus[k])return false;me.bonus[k]=1;me.draws++;saveMe();renderTop();setAgain();return true;}
+function setAgain(){const b=$("bAgain");if(!b)return;b.onclick=()=>{if(!ready())return;me.draws>0?goCarton():openDice();};refreshWait();}
+function bonus(k){return false;}
 
 /* ================= ゴールドパック ================= */
 function goldDraw(n){const av={};goldPool().forEach(w=>av[w.tier]=(av[w.tier]||0)+1);const out=[];
@@ -979,17 +977,25 @@ function goldDraw(n){const av={};goldPool().forEach(w=>av[w.tier]=(av[w.tier]||0
 const goldPool=()=>WORKS.filter(w=>GOLD_TIERS.includes(w.tier)&&!me.coll[w.id]);
 
 /* ================= 回数・サイコロ ================= */
-function fmt(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1000);return`${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s/60)%60).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;}
-setInterval(()=>{const left=me.next-Date.now();$("rTimer").textContent=left>0?L.next(fmt(left)):L.now;$("bRollNow").disabled=!DEMO&&left>0;},500);
-window.openRefill=()=>{$("mRefill").classList.add("on");};
+function fmt(ms){ms=Math.max(0,ms);const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s/60)%60,ss=String(s%60).padStart(2,"0");return h?`${h}:${String(m).padStart(2,"0")}:${ss}`:`${m}:${ss}`;}
 
 document.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>{const k=b.dataset.link;window.open(LINKS[k],"_blank","noopener");if(!me.links[me.cycle+k]){me.links[me.cycle+k]=1;me.next=0;saveMe();}});
-$("bShareRoll").textContent=L.shareRoll;
-$("bShareRoll").onclick=async()=>{const text=JA?"しゅがけ1万人記念くじ、引いてみて！\n#しゅがけくじ":"Try the Sugar Cage 10K KUJI!\n#SugarCageKuji";
+// 待ち時間：シェアするとすぐ引ける（1回の待ちにつき1度）
+const ready=()=>me.draws>0||Date.now()>=me.next;
+const canSkip=()=>!ready()&&!me.links[me.cycle+"share"];
+function skipWait(){if(!me.links[me.cycle+"share"]){me.links[me.cycle+"share"]=1;me.next=0;saveMe();}refreshWait();}
+async function shareInvite(){const text=JA?"しゅがけ1万人記念くじ、引いてみて！\n#しゅがけくじ":"Try the Sugar Cage 10K KUJI!\n#SugarCageKuji";
   let ok=false;if(navigator.share){try{await navigator.share({text,url:SITE_URL});ok=true;}catch(e){}}
   else{window.open("https://x.com/intent/post?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(SITE_URL),"_blank","noopener");ok=true;}
-  if(ok&&!me.links[me.cycle+"share"]){me.links[me.cycle+"share"]=1;me.next=0;saveMe();toast(JA?"すぐ回せるよ！":"Ready to roll!");}};
-$("bRollNow").onclick=()=>{$("mRefill").classList.remove("on");openDice();};
+  if(ok)skipWait();}
+function refreshWait(){const left=me.next-Date.now(),w=!ready();
+  // イントロ
+  const bs=$("bStart"),bi=$("bInvite");if(bs){bs.disabled=w;bs.innerHTML=(JA?"はじめる":"START")+(w?`<small>${fmt(left)}</small>`:"");bi.style.display=w&&canSkip()?"":"none";}
+  // リザルト
+  const ba=$("bAgain");if(ba&&$("scResult").classList.contains("on")){ba.disabled=w;ba.innerHTML=L.again()+(w?`<small>${fmt(left)}</small>`:"");
+    $("sS").textContent=canSkip()?(JA?"もう一度すぐ引ける":"Play again now"):"";}}
+setInterval(refreshWait,500);
+
 let rolled=false;
 $("bGoldGo").onclick=()=>{$("mDice").classList.remove("on");goGold();};
 function openDice(){const gb=$("bGoldGo"),gn=Math.min(me.gold,MAX_PICK,goldPool().length);gb.style.display=gn>0?"":"none";gb.innerHTML=`${JA?"金パック":"GOLD"} <small>×${gn}</small>`;rolled=false;$("die").textContent="?";$("die").className="die";$("bRoll").disabled=false;$("bRoll").textContent=L.roll;$("mDice").classList.add("on");}
@@ -1020,8 +1026,9 @@ function onBox(d,prev){
 Remote.listeners.push(onBox);
 setInterval(()=>{const sc=$("scCarton");if(Remote.ok&&!document.hidden&&sc.classList.contains("on"))Remote.refresh().catch(()=>{});},10000);
 function showIntro(){showBox();const sc=$("scCarton");sc.classList.add("intro");$("iLeft").textContent=Store.total(Store.load());$("iTotal").textContent=TOTAL;
-  $("iTitle").textContent=JA?"ありがとうくじ":"THANK-YOU KUJI";$("bStart").textContent=JA?"はじめる":"START";}
-$("bStart").onclick=()=>{ac();$("scCarton").classList.remove("intro");if(me.draws>0)goCarton();else if(DEMO||Date.now()>=me.next)openDice();else openRefill();};
+  $("iTitle").textContent=JA?"ありがとうくじ":"THANK-YOU KUJI";refreshWait();}
+$("bStart").onclick=()=>{if(!ready())return;ac();$("scCarton").classList.remove("intro");if(me.draws>0)goCarton();else openDice();};
+$("bInvite").innerHTML=`${L.share}<small>${JA?"すぐ引ける":"play now"}</small>`;$("bInvite").onclick=shareInvite;
 function goGold(){goldMode=true;scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
 function goCarton(){goldMode=false;if(me.draws<=0){showBox();if(DEMO)setTimeout(openDice,200);return;}scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
 
@@ -1095,7 +1102,7 @@ if(window.KUJI_TEST){
   const tp=document.createElement("div");tp.className="testpanel";DEV.appendChild(tp);
   const acts=[["箱を残り3枚にして、3回引く（ピロートーク賞を試す）",()=>{const s=Store.load();Store.save({round:s.round,left:{A:0,B:1,C:0,D:0,E:0,F:1,G:0,H:1}});me.draws=3;return "carton";}],
     ["金を3枚もらう",()=>{me.gold+=3;}],["次のくじに金と銀の裏面を1枚ずつ入れる",()=>{window.__metal=1;}],["銀を9枚にする（あと1枚で金）",()=>{me.silver=9;}],
-    ["集めた景品をリセット",()=>{me.coll={};}],["箱を新品（100枚）に戻す",()=>{const s=Store.load();Store.save(Store.fresh(s.round+1));}]];
+    ["集めた景品をリセット",()=>{me.coll={};}],["待ち時間をゼロにする",()=>{me.next=0;}],["箱を新品（100枚）に戻す",()=>{const s=Store.load();Store.save(Store.fresh(s.round+1));}]];
   tp.innerHTML=`<b>テスト</b>`+acts.map((a,i)=>`<button data-i="${i}">${a[0]}</button>`).join("")+`<small>操作したら、サイコロの画面（またはパック選び）からやり直すよ</small>`;
   tb.onclick=()=>tp.classList.toggle("on");
   tp.querySelectorAll("button").forEach(b=>b.onclick=()=>{const go=acts[b.dataset.i][1]();saveMe();tp.classList.remove("on");document.querySelectorAll(".modal.on").forEach(m=>m.classList.remove("on"));if(go==="carton")goCarton();else{showBox();openDice();}toast("OK");});
