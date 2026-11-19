@@ -5,4 +5,4 @@
 - みんなの箱のルール: `firestore.rules`（Firebase の Firestore → ルール に貼る）
 - 素材: `assets/`
 
-公開前に `index.html` の `const DEMO=true` を `false` にする。
+公開前に `index.html` の `const DEMO=true` を `false` にする（true の間は、開くたびに集めた景品と金銀がリセットされる）。

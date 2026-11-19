@@ -384,8 +384,8 @@ body::before{content:"";position:fixed;inset:-40px;background:url(assets/pack_fr
 /* ================= 設定 ================= */
 const LINKS={collab:"https://x.com/",etsy:"https://www.etsy.com/shop/SugarCage",patreon:"https://www.patreon.com/sugarcage"};
 const SITE_URL=location.href.split('#')[0];
-const DEMO=true; // サンプル中は回数無制限（本番は false）
-const REFILL_MIN=10, REFILL_MS=(DEMO&&!window.KUJI_TEST)?0:REFILL_MIN*60*1000, MAX_PICK=10, STUCK_RATE=0.2, SHOW_MAX=20;
+const DEMO=true; // サンプル中：開くたびに集めた景品と金銀をリセット（本番は false）
+const REFILL_MIN=10, REFILL_MS=REFILL_MIN*60*1000, MAX_PICK=10, STUCK_RATE=0.2, SHOW_MAX=20;
 const RATE_GOLD=0.02, RATE_SILVER=0.05, SILVER_PER_GOLD=10, GOLD_TIERS="CDEFGH";
 // 効果音ファイル（差し替え用）。パスを入れると合成音の代わりに鳴る
 const SOUND_FILES={pick:"assets/sfx/pick.mp3",slide:"",flip:"assets/sfx/flip.mp3",aura:"assets/sfx/shine.mp3",coin:"assets/sfx/coin.mp3",big:"assets/sfx/reveal.mp3",dice:"assets/sfx/dice.mp3",land:"",stuck:"assets/sfx/stuck.mp3",heart:"assets/sfx/heart.mp3",pull:"assets/sfx/pull.mp3"};
@@ -1030,7 +1030,7 @@ function showIntro(){showBox();const sc=$("scCarton");sc.classList.add("intro");
 $("bStart").onclick=()=>{if(!ready())return;ac();$("scCarton").classList.remove("intro");if(me.draws>0)goCarton();else openDice();};
 $("bInvite").innerHTML=`${L.share}<small>${JA?"すぐ引ける":"play now"}</small>`;$("bInvite").onclick=shareInvite;
 function goGold(){goldMode=true;scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
-function goCarton(){goldMode=false;if(me.draws<=0){showBox();if(DEMO)setTimeout(openDice,200);return;}scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
+function goCarton(){goldMode=false;if(me.draws<=0){showIntro();return;}scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
 
 /* ================= ⑦ ずかん（全賞 → 賞のバインダー → 景品ページ）／なかま／しゅがけ ================= */
 const CL=JA?{useGold:"金パックをあける",sound:"サウンド",coll:"けいひん",artists:"コラボ",mine:"しゅがけ",notyet:"まだ開放されていません",listen:s=>`${s} で聴く`,artist:"作家さんのページ",by:"コラボ",prizes:"景品",art:"ART",music:"MUSIC"}
