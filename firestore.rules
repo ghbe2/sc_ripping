@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // みんなの箱（1つだけ）
+    match /kuji/box {
+      allow read: if true;
+      allow create: if request.resource.data.round == 1
+                    && isFresh(request.resource.data.left)
+                    && okShape(request.resource.data);
+      allow update: if okShape(request.resource.data)
+                    && (sameRound() || nextRound());
+    }
+
+    // 新品の箱の中身（prizes.js の枚数と同じにする）
+    function isFresh(l) {
+      return l.keys().hasOnly(['A','B','C','D','E','F','G','H']) && l.size() == 8
+        && l.A == 2 && l.B == 5 && l.C == 8 && l.D == 10
+        && l.E == 15 && l.F == 16 && l.G == 20 && l.H == 24;
+    }
+    function total(l) { return l.A + l.B + l.C + l.D + l.E + l.F + l.G + l.H; }
+    function okShape(d) {
+      return d.keys().hasOnly(['round','left','feed'])
+        && d.round is int && d.left is map && d.left.size() == 8
+        && d.feed is list && d.feed.size() <= 20;
+    }
+    // 同じ箱から1〜10枚減らすだけ（増やす・マイナスは禁止）
+    function sameRound() {
+      let n = request.resource.data.left;
+      let o = resource.data.left;
+      let used = total(o) - total(n);
+      return request.resource.data.round == resource.data.round
+        && n.A >= 0 && n.B >= 0 && n.C >= 0 && n.D >= 0 && n.E >= 0 && n.F >= 0 && n.G >= 0 && n.H >= 0
+        && n.A <= o.A && n.B <= o.B && n.C <= o.C && n.D <= o.D
+        && n.E <= o.E && n.F <= o.F && n.G <= o.G && n.H <= o.H
+        && used >= 1 && used <= 10;
+    }
+    // 箱を空にした人だけが、新品の次の箱に入れ替えられる
+    function nextRound() {
+      return request.resource.data.round == resource.data.round + 1
+        && total(resource.data.left) <= 10
+        && isFresh(request.resource.data.left);
+    }
+  }
+}
