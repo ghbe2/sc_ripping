@@ -415,28 +415,28 @@ const JA=(navigator.language||"").toLowerCase().startsWith("ja");
 const L=JA?{
   lastTo:"ラストキャンディまで",prizes:"景品",refill:"回数を補充",empty:"引ける回数がなくなりました",
   note:"景品はフォロワーさんとのコラボ作品（現在はサンプル）。箱はみんなで共有。<br>最後の1パックを開けた人に 🍬 ラストキャンディ賞。",
-  diceTitle:"何回引こうかな",roll:"きめる",go:"パックを選ぶ",n:n=>`${n} 回`,
+  diceTitle:"HOW MANY?",roll:"ROLL",go:"PICK PACKS",n:n=>`${n} 回`,
   refillDesc:"30分ごとに回せます。<br>シェアすると、すぐ回せます。",shareRoll:"シェアする",lCollab:"コラボ作家さん一覧",next:t=>`次まで ${t}`,now:"いま回せます",
   pick:n=>`パックを ${n} つ選ぶ`,auto:"おまかせ",open:"開ける",more:n=>`あと ${n}`,
   stuck:"…止まった",flip:"タップでめくる",flipAll:"ぜんぶめくる",got:n=>`${n} 枚`,
-  share:"𝕏 でシェア",plus1:"+1 🎲",again:n=>`もう一度`,againS:n=>`🎲 ${n}`,
+  share:"SHARE 𝕏",plus1:"+1 🎲",again:n=>`AGAIN`,againS:n=>`🎲 ${n}`,
   owned:"持ってる",sum:(a,b)=>`${a} / ${b} 種類`,
   goldTitle:"ゴールドパック",goldDesc:"まだ持っていない作品（C〜H賞）から1枚。<br>シルバー10枚でゴールド1枚。",
   gInfo:(g,n)=>`ゴールド ${g}　／　候補 ${n} 作品`,useGold:"ゴールドで開ける",noneLeft:"C〜H賞はすべて持っています",
-  toGold:"シルバー10枚 → ゴールド",get lastCandy(){return TC_ICON+" "+TC_JA},thiefPick:"拾う",thiefWait:"あとで",get thiefLost(){return "おしい！"+TC_JA+"はほかの人に…"},artistLink:"作者ページ",
+  toGold:"シルバー10枚 → ゴールド",get lastCandy(){return TC_ICON+" "+TC_JA},thiefPick:"TAKE IT",thiefWait:"あとで",get thiefLost(){return "おしい！"+TC_JA+"はほかの人に…"},artistLink:"作者ページ",
   shareText:(n,line,last)=>`しゅがけ1万人記念「リップサービス」で${n}パック開けた\n${line}${last?"\n"+TC_ICON+TC_JA:""}\n#しゅがけくじ`
 }:{
   lastTo:"LAST CANDY in",prizes:"Prizes",refill:"Refill",empty:"No pulls left",
   note:"All prizes are collab art by our followers (samples for now). One box shared by everyone.<br>Open the very last pack to win 🍬 LAST CANDY.",
-  diceTitle:"How many pulls?",roll:"GO",go:"Pick packs",n:n=>`${n} pull${n>1?"s":""}`,
+  diceTitle:"HOW MANY?",roll:"ROLL",go:"PICK PACKS",n:n=>`${n} pull${n>1?"s":""}`,
   refillDesc:"Roll every 30 minutes.<br>Share to roll right now.",shareRoll:"Share",lCollab:"Collab artists",next:t=>`Next in ${t}`,now:"Ready",
   pick:n=>`Pick ${n} pack${n>1?"s":""}`,auto:"Auto",open:"Open",more:n=>`${n} more`,
   stuck:"…stuck",flip:"Tap to flip",flipAll:"Flip all",got:n=>`${n} card${n>1?"s":""}`,
-  share:"Share on 𝕏",plus1:"+1 🎲",again:n=>`Again`,againS:n=>`🎲 ${n}`,
+  share:"SHARE 𝕏",plus1:"+1 🎲",again:n=>`AGAIN`,againS:n=>`🎲 ${n}`,
   owned:"owned",sum:(a,b)=>`${a} / ${b} collected`,
   goldTitle:"Gold Pack",goldDesc:"1 card from works you don't own yet (C–H).<br>10 silver = 1 gold.",
   gInfo:(g,n)=>`Gold ${g}  /  ${n} possible`,useGold:"Open with gold",noneLeft:"You own every C–H work",
-  toGold:"10 silver → gold",get lastCandy(){return TC_ICON+" "+TC_EN},thiefPick:"Grab",thiefWait:"later",get thiefLost(){return "So close! Someone else got the "+TC_EN+"…"},artistLink:"Artist page",
+  toGold:"10 silver → gold",get lastCandy(){return TC_ICON+" "+TC_EN},thiefPick:"TAKE IT",thiefWait:"later",get thiefLost(){return "So close! Someone else got the "+TC_EN+"…"},artistLink:"Artist page",
   shareText:(n,line,last)=>`Opened ${n} packs in Sugar Cage RIP SERVICE\n${line}${last?"\n"+TC_ICON+" "+TC_EN:""}\n#SugarCageKuji`
 };
 document.documentElement.lang=JA?"ja":"en";
@@ -802,9 +802,9 @@ async function openRest(){
 let opened=0,flipping=false,auto=false,cards=[],dealing=false;
 const isBig=c=>"ABC".includes(c.r.tier)||c.r.thief;
 const freeOf=t=>WORKS.filter(w=>w.tier===t&&!me.coll[w.id]);
-function slipHTML(r,dup){const w=r.work;if(r.thief)return `<div class="slip thief"><div class="tier">${TC_ICON}<small>${JA?TC_JA:TC_EN}</small></div><div class="thumb" style="background-image:url(${w.img})"></div><div class="nm">${w.title}</div><span class="nw">NEW</span></div>`;
+function slipHTML(r,dup){const w=r.work;if(r.thief)return `<div class="slip thief"><div class="tier">${TC_ICON}<small>${TC_EN}</small></div><div class="thumb" style="background-image:url(${w.img})"></div><div class="nm">${w.title}</div><span class="nw">NEW</span></div>`;
   const thumb=w?`<div class="thumb" style="background-image:url(${w.img})"></div>`:`<div class="thumb q">?</div>`;
-  return `<div class="slip${frameCls(r,dup)}"><div class="tier">${r.tier}<small>${JA?"賞":""}</small></div>${thumb}<div class="nm">${w?w.title:""}</div>${dup?"":'<span class="nw">NEW</span>'}</div>`;}
+  return `<div class="slip${frameCls(r,dup)}"><div class="tier">${r.tier}<small></small></div>${thumb}<div class="nm">${w?w.title:""}</div>${dup?"":'<span class="nw">NEW</span>'}</div>`;}
 function frameCls(r,dup){const m=r.ticket;if(m==="g"&&dup)return " fr-gs";if(m==="g")return " fr-g";if(m==="s")return " fr-s";if(dup)return " fr-s fx";return "";}
 function startReveal(){
   scene("scReveal");opened=0;auto=false;
@@ -841,7 +841,7 @@ function drama(r,done,dup){
   const w=r.work,t=r.tier,beats=t==="A"||t==="TC"?8:t==="B"?6:4,len=t==="A"||t==="TC"?3.5:t==="B"?2.5:1.6,tail=0;
   const d=$("drama"),inn=$("dIn"),aura=t==="A"||r.thief?"aura-A":"aura-"+t;
   $("dFront").innerHTML=slipHTML(r,dup);
-  $("dCap").innerHTML=w?`<b>${w.title}</b><br>${w.artist}`:`<b>${t}${JA?"賞":""}</b>`;
+  $("dCap").innerHTML=w?`<b>${w.title}</b><br>${w.artist}`:`<b>${t}</b>`;
   inn.className="in "+aura;inn.style.transition="none";inn.style.transform="rotateY(0deg) scale(.9)";
   d.className="drama on";ac();
   const t0=performance.now();let pulse=0,bi=0,fin=false;
@@ -883,7 +883,7 @@ function nextSelect(){
   if(free.length===1){choose(free[0],true);return;}
   scene("scSelect");
   const all=WORKS.filter(w=>w.tier===selCur.tier);selList=[...free,...all.filter(w=>me.coll[w.id])];
-  $("sTier").innerHTML=`${selCur.tier}<small>${JA?"賞":""}</small>`;$("sTxt").textContent="";
+  $("sTier").innerHTML=`${selCur.tier}<small></small>`;$("sTxt").textContent="";
   const car=$("car");car.innerHTML="";
   selList.forEach((w,i)=>{const own=!!me.coll[w.id];const e=document.createElement("div");e.className="sk"+(own?" own":"");
     e.innerHTML=`<div class="art" style="background-image:url(${w.img})">${own?'<span class="ok">✓</span>':""}</div><div class="cap"><b>${w.title}</b><span>${w.artist}</span></div>`;
@@ -898,7 +898,7 @@ function onCar(){const car=$("car"),ks=car.children;if(!ks.length)return;const m
     const f=Math.min(1,dd/k.offsetWidth);k.style.transform=`scale(${1-f*.12})`;k.style.opacity=1-f*.45;}
   if(best!==selIdx){selIdx=best;[...$("dots").children].forEach((d,i)=>d.classList.toggle("on",i===best));
     const own=!!me.coll[selList[best].id];$("sIdx").textContent=`${best+1} / ${selList.length}`;
-    const b=$("bPick");b.disabled=own;b.textContent=own?(JA?"✓ もってる":"✓ GOT IT"):(JA?"これにする":"THIS ONE");}}
+    const b=$("bPick");b.disabled=own;b.textContent=own?"✓ OWNED":"THIS ONE";}}
 $("car").addEventListener("scroll",()=>requestAnimationFrame(onCar),{passive:true});
 // マウスでもスワイプ（指はそのままネイティブ）
 (()=>{const car=$("car");let dr=null;const go=i=>{i=Math.max(0,Math.min(car.children.length-1,i));const e=car.children[i];car.scrollTo({left:e.offsetLeft-(car.clientWidth-e.offsetWidth)/2,behavior:"smooth"});};
@@ -936,7 +936,7 @@ function showResult(){if(MAIN){results=MAIN.concat(results);MAIN=null;THIEF_PEND
   [...$("rGrid").children].forEach((e,i)=>{const r=rest[i];if(!r.silver)e.firstElementChild.onclick=()=>showZoom(r,false);});
 }
 function resCard(r,big){const w=r.work,t=r.tier,glow="ABC".includes(t)?" g"+t:"";
-  const cap=`<span class="tg">${r.thief?TC_ICON+" "+(JA?TC_JA:TC_EN):t+(JA?"賞":"")}</span>`;
+  const cap=`<span class="tg">${r.thief?TC_ICON+" "+TC_EN:t}</span>`;
   return `<div class="rcd${glow}${big?" big":""}${frameCls(r,r.silver).replace(" fx","")}" data-z style="background-image:url(${w.img})"></div>${cap}`;}
 function loadImg(src){return new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});}
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
@@ -958,7 +958,7 @@ async function makeShare(list,nNew,have,tk){
       if(im){const s=Math.max(w/im.width,h/im.height);x.drawImage(im,X+(w-im.width*s)/2,Y,im.width*s,im.height*s);}x.restore();}
     const fm=r.ticket==="g"&&r.silver?"gs":r.ticket==="g"?"g":(r.ticket==="s"||r.silver)?"s":null;
     if(fm){const fg=x.createLinearGradient(X,Y,X+w,Y+h);const cs=fm==="gs"?["#efc35a","#dfe4ec","#efc35a","#aab3c2"]:fm==="g"?["#fff1c4","#efc35a","#c99327","#fff6d6"]:["#ffffff","#dfe4ec","#aab3c2","#eef1f5"];cs.forEach((c,i)=>fg.addColorStop(i/3,c));x.save();x.lineWidth=big?16:9;x.strokeStyle=fg;rr(x,X,Y,w,h,big?36:18);x.stroke();x.restore();}
-    x.fillStyle="rgba(255,255,255,.85)";x.font=`900 ${big?40:24}px system-ui,sans-serif`;x.textAlign="center";x.fillText(r.thief?TC_ICON+" "+(JA?TC_JA:TC_EN):r.tier+(JA?"賞":""),X+w/2,Y+h+(big?52:32));};
+    x.fillStyle="rgba(255,255,255,.85)";x.font=`900 ${big?40:24}px system-ui,sans-serif`;x.textAlign="center";x.fillText(r.thief?TC_ICON+" "+TC_EN:r.tier,X+w/2,Y+h+(big?52:32));};
   await drawCard(hero,(Wc-heroW)/2,top,heroW,heroH,true);
   const gy=top+heroH+80,gw=cols*cw+(cols-1)*gap;
   for(let i=0;i<rest.length;i++){const col=i%cols,row=Math.floor(i/cols),inRow=Math.min(cols,rest.length-row*cols),ox=(Wc-(inRow*cw+(inRow-1)*gap))/2;
@@ -1009,7 +1009,7 @@ setInterval(refreshWait,500);
 
 let rolled=false;
 $("bGoldGo").onclick=()=>{$("mDice").classList.remove("on");goGold();};
-function openDice(){const gb=$("bGoldGo"),gn=Math.min(me.gold,MAX_PICK,goldPool().length);gb.style.display=gn>0?"":"none";gb.innerHTML=`${JA?"金パック":"GOLD"} <small>×${gn}</small>`;rolled=false;$("die").textContent="?";$("die").className="die";$("bRoll").disabled=false;$("bRoll").textContent=L.roll;$("mDice").classList.add("on");}
+function openDice(){const gb=$("bGoldGo"),gn=Math.min(me.gold,MAX_PICK,goldPool().length);gb.style.display=gn>0?"":"none";gb.innerHTML=`GOLD <small>×${gn}</small>`;rolled=false;$("die").textContent="?";$("die").className="die";$("bRoll").disabled=false;$("bRoll").textContent=L.roll;$("mDice").classList.add("on");}
 $("bRoll").onclick=()=>{
   if(rolled){$("mDice").classList.remove("on");goCarton();return;}$("bGoldGo").style.display="none";
   ac();$("bRoll").disabled=true;const die=$("die");const cap=Math.max(1,Math.min(10,Store.total(Store.load())));const n=1+Math.floor(Math.random()*cap);sfx.dice();
@@ -1032,7 +1032,7 @@ function onBox(d,prev){
   const gone=packs.slice(packs.length-drop);gone.forEach((p,i)=>setTimeout(()=>p.classList.add("gone"),i*700));
   fresh.forEach((e,i)=>setTimeout(()=>{const cand=(gone.length?gone:packs).filter(p=>{const r=p.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;return !(sc.classList.contains("intro")&&cx>card.left-30&&cx<card.right+30&&cy>card.top-30&&cy<card.bottom+30)&&cy>dr.top+110&&cy<dr.bottom-110;});
       const p=cand[Math.floor(Math.random()*cand.length)];if(!p)return;const r=p.getBoundingClientRect(),top="ABC".includes(e.t)||e.t==="TC";
-      const tg=document.createElement("div");tg.className="ltag"+(top?" top":"");tg.textContent=e.t==="TC"?`${TC_ICON} ${JA?TC_JA:TC_EN}`:`${e.t}${JA?"賞":""}`;
+      const tg=document.createElement("div");tg.className="ltag"+(top?" top":"");tg.textContent=e.t==="TC"?`${TC_ICON} ${TC_EN}`:`${e.t}`;
       tg.style.left=Math.max(60,Math.min(dr.width-60,r.left-dr.left+r.width/2))+"px";tg.style.top=(r.top-dr.top+r.height/2)+"px";sc.appendChild(tg);setTimeout(()=>tg.remove(),2400);},i*700));}
 Remote.listeners.push(onBox);
 setInterval(()=>{const sc=$("scCarton");if(Remote.ok&&!document.hidden&&sc.classList.contains("on"))Remote.refresh().catch(()=>{});},10000);
@@ -1044,8 +1044,8 @@ function goGold(){goldMode=true;scene("scCarton");buildCarton();$("scCarton").cl
 function goCarton(){goldMode=false;if(me.draws<=0){showIntro();return;}scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
 
 /* ================= ⑦ ずかん（全賞 → 賞のバインダー → 景品ページ）／なかま／しゅがけ ================= */
-const CL=JA?{useGold:"金パックをあける",sound:"サウンド",coll:"けいひん",artists:"コラボ",mine:"しゅがけ",notyet:"まだ開放されていません",listen:s=>`${s} で聴く`,artist:"作家さんのページ",by:"コラボ",prizes:"景品",art:"ART",music:"MUSIC"}
-           :{useGold:"Open gold pack",sound:"Sound",coll:"PRIZES",artists:"COLLABS",mine:"SUGAR CAGE",notyet:"Not unlocked yet",listen:s=>`Listen on ${s}`,artist:"Artist page",by:"Collab",prizes:"Prizes",art:"ART",music:"MUSIC"};
+const CL=JA?{useGold:"OPEN GOLD",sound:"SOUND",coll:"PRIZES",artists:"COLLABS",mine:"SUGAR CAGE",notyet:"まだ開放されていません",listen:s=>`Listen on ${s}`,artist:"ARTIST PAGE",by:"COLLAB",prizes:"PRIZES",art:"ART",music:"MUSIC"}
+           :{useGold:"OPEN GOLD",sound:"SOUND",coll:"PRIZES",artists:"COLLABS",mine:"SUGAR CAGE",notyet:"Not unlocked yet",listen:s=>`Listen on ${s}`,artist:"ARTIST PAGE",by:"COLLAB",prizes:"PRIZES",art:"ART",music:"MUSIC"};
 const SVC={suno:"Suno",spotify:"Spotify",youtube:"YouTube",x:"X",pixiv:"pixiv",site:"Web"};
 const mainLink=c=>c?Object.values(c.links||{})[0]||"":"";
 let cStack=[],cPrev="scCarton",cAudio=null;
@@ -1066,7 +1066,7 @@ function renderArtist(el,id){const c=COLLABS[id],ws=WORKS.filter(w=>w.collab===i
     <div class="apn"><b>${c.name}</b><span>@${c.handle}</span><em class="${c.kind}">${CL[c.kind]||""}</em></div>
     ${c.bio?`<p class="apb">${c.bio}</p>`:""}
     <div class="apl">${Object.entries(c.links||{}).filter(([k,u])=>u).map(([k,u])=>`<button data-u="${u}">${LINKN[k]||k} ↗</button>`).join("")}</div>
-    ${c.message?`<div class="apm"><small>${JA?"1万人記念に寄せて":"A note for the 10K"}</small><p>${c.message}</p></div>`:""}
+    ${c.message?`<div class="apm"><small>MESSAGE</small><p>${c.message}</p></div>`:""}
     <div class="apw">${ws.map(w=>`<div class="pk2" data-id="${w.id}">${owned(w)?`<div class="ph2" style="background-image:url(${w.img})">${w.type==="music"?'<span class="mu">♪</span>':""}</div>`:`<div class="em">${w.tier}</div>`}</div>`).join("")}</div></div>`;
   el.querySelectorAll(".apl button").forEach(b=>b.onclick=()=>visit(b.dataset.u,"c_"+id));
   el.querySelectorAll(".apw .pk2").forEach(d=>d.onclick=()=>collGo("prize",d.dataset.id));}
@@ -1075,11 +1075,11 @@ function renderColl(){
   $("cBack").textContent=root?"×":"‹";$("cTabs").style.display=root?"":"none";el.className="cbody"+(root?"":" csub");el.scrollTop=0;$("cBar").innerHTML="";
   if(root)[...$("cTabs").children].forEach(b=>b.classList.toggle("on",b.dataset.v===view));
   if(view==="top"){$("zTitle").innerHTML=CL.coll;$("cRight").textContent=`${have} / ${WORKS.length}`;
-    el.innerHTML=`<div class="gstrip"><span><i class="coin g"></i><b>${me.gold}</b></span><span><i class="coin s"></i><b>${me.silver}</b><small>/10</small></span></div><div class="tctile" id="tcTile" style="${owned(THIEF)?`--img:url(${THIEF.img})`:""}"><b>${TC_ICON} ${JA?TC_JA:TC_EN}</b>${owned(THIEF)?"<span>✓</span>":""}</div><div class="tgrid">`+TIERS.map(t=>{const ws=WORKS.filter(w=>w.tier===t),n=ws.filter(owned).length,c=ws.find(owned);
+    el.innerHTML=`<div class="gstrip"><span><i class="coin g"></i><b>${me.gold}</b></span><span><i class="coin s"></i><b>${me.silver}</b><small>/10</small></span></div><div class="tctile" id="tcTile" style="${owned(THIEF)?`--img:url(${THIEF.img})`:""}"><b>${TC_ICON} ${TC_EN}</b>${owned(THIEF)?"<span>✓</span>":""}</div><div class="tgrid">`+TIERS.map(t=>{const ws=WORKS.filter(w=>w.tier===t),n=ws.filter(owned).length,c=ws.find(owned);
       return `<div class="tile" data-t="${t}" style="${c?`--img:url(${c.img})`:""}"><b>${t}</b><span class="tn">${n}/${ws.length}</span>${n===ws.length?'<span class="cmp">COMPLETE</span>':""}<div class="tb">${ws.map(w=>`<i class="${owned(w)?"on":""}"></i>`).join("")}</div></div>`;}).join("")+`</div>`;
     el.querySelectorAll(".tile").forEach(d=>d.onclick=()=>collGo("tier",d.dataset.t));$("tcTile").onclick=()=>collGo("prize","TC");
 }
-  if(view==="tier"){const t=arg,ws=WORKS.filter(w=>w.tier===t);$("zTitle").innerHTML=`${t}<small>${JA?"賞":""}</small>`;$("cRight").textContent=`${ws.filter(owned).length} / ${ws.length}`;
+  if(view==="tier"){const t=arg,ws=WORKS.filter(w=>w.tier===t);$("zTitle").innerHTML=`${t}<small></small>`;$("cRight").textContent=`${ws.filter(owned).length} / ${ws.length}`;
     const pockets=[...ws];while(pockets.length%3||pockets.length<3)pockets.push(null);
     el.innerHTML=`<div class="binder">${pockets.map(w=>w?`<div class="pk2" data-id="${w.id}">${owned(w)?`<div class="ph2" style="background-image:url(${w.img})">${w.type==="music"?'<span class="mu">♪</span>':""}</div>`:`<div class="em">${t}</div>`}</div>`:`<div class="pk2 none"></div>`).join("")}</div>
       <div class="tnav"><span data-d="-1">‹</span>${TIERS.map(x=>`<span data-x="${x}" class="${x===t?"on":""}">${x}</span>`).join("")}<span data-d="1">›</span></div>`;
@@ -1089,7 +1089,7 @@ function renderColl(){
     let sx=null;el.onpointerdown=e=>{sx=e.clientX;};el.onpointerup=e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)jump(TIERS[RANK(t)+(dx<0?1:-1)]);};}
   else{el.onpointerdown=el.onpointerup=null;}
   if(view==="prize"){const w=arg==="TC"?THIEF:WORKS.find(x=>x.id===arg),c=COLLABS[w.collab],ok=owned(w),mu=w.type==="music";
-    $("zTitle").innerHTML=w.tier==="TC"?`${TC_ICON} <small>${JA?TC_JA:TC_EN}</small>`:`${w.tier}<small>${JA?"賞":""}</small>`;$("cRight").textContent=w.tier==="TC"?"":w.id;
+    $("zTitle").innerHTML=w.tier==="TC"?`${TC_ICON} <small>${TC_EN}</small>`:`${w.tier}<small></small>`;$("cRight").textContent=w.tier==="TC"?"":w.id;
     el.innerHTML=`<div class="pz">
       <div class="pzc${ok?"":" lock"}" style="${ok?`background-image:url(${w.img})`:""}">${ok?"":`<span>?</span>`}${ok&&mu&&w.audio?`<button class="play" id="cPlay">▶</button><div class="prog"><i id="cProg"></i></div>`:""}</div>
       <div class="pzt">${ok?w.title:"？？？"}${mu?` <em>♪ ${CL.music}</em>`:""}</div>
