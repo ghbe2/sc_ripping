@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sugar Cage 10K KUJI</title>
+<title>Sugar Cage RIP SERVICE</title>
 <style>
 :root{--bg:#f4eefb;--ink:#2a1b52;--mute:#6c5a99;--hair:#e2d7f5;--card:#ffffff;--accent:#5b3fa6;--t1:#e9dff8;--t2:#d9c8f4;--t3:#c3a9ee;--pri:#5b3fa6}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -424,7 +424,7 @@ const L=JA?{
   goldTitle:"ゴールドパック",goldDesc:"まだ持っていない作品（C〜H賞）から1枚。<br>シルバー10枚でゴールド1枚。",
   gInfo:(g,n)=>`ゴールド ${g}　／　候補 ${n} 作品`,useGold:"ゴールドで開ける",noneLeft:"C〜H賞はすべて持っています",
   toGold:"シルバー10枚 → ゴールド",get lastCandy(){return TC_ICON+" "+TC_JA},thiefPick:"拾う",thiefWait:"あとで",get thiefLost(){return "おしい！"+TC_JA+"はほかの人に…"},artistLink:"作者ページ",
-  shareText:(n,line,last)=>`しゅがけ1万人記念くじを${n}パック開けた\n${line}${last?"\n"+TC_ICON+TC_JA:""}\n#しゅがけくじ`
+  shareText:(n,line,last)=>`しゅがけ1万人記念「リップサービス」で${n}パック開けた\n${line}${last?"\n"+TC_ICON+TC_JA:""}\n#しゅがけくじ`
 }:{
   lastTo:"LAST CANDY in",prizes:"Prizes",refill:"Refill",empty:"No pulls left",
   note:"All prizes are collab art by our followers (samples for now). One box shared by everyone.<br>Open the very last pack to win 🍬 LAST CANDY.",
@@ -437,7 +437,7 @@ const L=JA?{
   goldTitle:"Gold Pack",goldDesc:"1 card from works you don't own yet (C–H).<br>10 silver = 1 gold.",
   gInfo:(g,n)=>`Gold ${g}  /  ${n} possible`,useGold:"Open with gold",noneLeft:"You own every C–H work",
   toGold:"10 silver → gold",get lastCandy(){return TC_ICON+" "+TC_EN},thiefPick:"Grab",thiefWait:"later",get thiefLost(){return "So close! Someone else got the "+TC_EN+"…"},artistLink:"Artist page",
-  shareText:(n,line,last)=>`Opened ${n} packs in the Sugar Cage 10K KUJI\n${line}${last?"\n"+TC_ICON+" "+TC_EN:""}\n#SugarCageKuji`
+  shareText:(n,line,last)=>`Opened ${n} packs in Sugar Cage RIP SERVICE\n${line}${last?"\n"+TC_ICON+" "+TC_EN:""}\n#SugarCageKuji`
 };
 document.documentElement.lang=JA?"ja":"en";
 document.querySelectorAll("[data-t]").forEach(e=>{const v=L[e.dataset.t];if(typeof v==="string")e.innerHTML=v;});
@@ -945,7 +945,7 @@ async function makeShare(list,nNew,have,tk){
   const Wc=1080,Hc=1440,c=document.createElement("canvas");c.width=Wc;c.height=Hc;const x=c.getContext("2d");
   const g=x.createRadialGradient(Wc/2,520,40,Wc/2,520,820);g.addColorStop(0,"#4a3290");g.addColorStop(1,"#1d1238");x.fillStyle=g;x.fillRect(0,0,Wc,Hc);
   const lg=await loadImg("assets/logo.png");let lh=120;if(lg){const lw=190;lh=lw*lg.height/lg.width;x.drawImage(lg,60,50,lw,lh);}
-  x.fillStyle="rgba(255,255,255,.7)";x.font="800 34px system-ui,sans-serif";x.textAlign="right";x.fillText("10K KUJI",Wc-60,108);
+  x.fillStyle="rgba(255,255,255,.7)";x.font="800 34px system-ui,sans-serif";x.textAlign="right";x.fillText("RIP SERVICE",Wc-60,108);
   const hero=list[0],rest=list.slice(1);
   const cols=rest.length<=3?Math.max(1,rest.length):rest.length<=8?4:5,rows=Math.ceil(rest.length/cols);
   const gap=22,cw=Math.min(180,(Wc-120-(cols-1)*gap)/cols),ch=cw*4/3,gridH=rest.length?rows*(ch+40)+(rows-1)*gap:0;
@@ -995,7 +995,7 @@ document.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>{const k=b.dat
 const ready=()=>me.draws>0||Date.now()>=me.next;
 const canSkip=()=>!ready()&&!me.links[me.cycle+"share"];
 function skipWait(){if(!me.links[me.cycle+"share"]){me.links[me.cycle+"share"]=1;me.next=0;saveMe();}refreshWait();}
-async function shareInvite(){const text=JA?"しゅがけ1万人記念くじ、引いてみて！\n#しゅがけくじ":"Try the Sugar Cage 10K KUJI!\n#SugarCageKuji";
+async function shareInvite(){const text=JA?"しゅがけ1万人記念「リップサービス」、引いてみて！\n#しゅがけくじ":"Try Sugar Cage RIP SERVICE!\n#SugarCageKuji";
   let ok=false;if(navigator.share){try{await navigator.share({text,url:SITE_URL});ok=true;}catch(e){}}
   else{window.open("https://x.com/intent/post?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(SITE_URL),"_blank","noopener");ok=true;}
   if(ok)skipWait();}
@@ -1037,7 +1037,7 @@ function onBox(d,prev){
 Remote.listeners.push(onBox);
 setInterval(()=>{const sc=$("scCarton");if(Remote.ok&&!document.hidden&&sc.classList.contains("on"))Remote.refresh().catch(()=>{});},10000);
 function showIntro(){showBox();const sc=$("scCarton");sc.classList.add("intro");$("iLeft").textContent=Store.total(Store.load());$("iTotal").textContent=TOTAL;
-  $("iTitle").textContent=JA?"ありがとうくじ":"THANK-YOU KUJI";refreshWait();}
+  $("iTitle").textContent=JA?"リップサービス":"RIP SERVICE";refreshWait();}
 $("bStart").onclick=()=>{if(!ready())return;ac();$("scCarton").classList.remove("intro");if(me.draws>0)goCarton();else openDice();};
 $("bInvite").innerHTML=`${L.share}<small>${JA?"すぐ引ける":"play now"}</small>`;$("bInvite").onclick=shareInvite;
 function goGold(){goldMode=true;scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
