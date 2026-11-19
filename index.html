@@ -1001,7 +1001,7 @@ async function shareInvite(){const text=JA?"しゅがけ1万人記念「リッ�
   if(ok)skipWait();}
 function refreshWait(){const left=me.next-Date.now(),w=!ready();
   // イントロ
-  const bs=$("bStart"),bi=$("bInvite");if(bs){bs.disabled=w;bs.innerHTML=(JA?"はじめる":"START")+(w?`<small>${fmt(left)}</small>`:"");bi.style.display=w&&canSkip()?"":"none";}
+  const bs=$("bStart"),bi=$("bInvite");if(bs){bs.disabled=w;bs.innerHTML="START"+(w?`<small>${fmt(left)}</small>`:"");bi.style.display=w&&canSkip()?"":"none";}
   // リザルト
   const ba=$("bAgain");if(ba&&$("scResult").classList.contains("on")){ba.disabled=w;ba.innerHTML=L.again()+(w?`<small>${fmt(left)}</small>`:"");
     $("sS").textContent=canSkip()?(JA?"もう一度すぐ引ける":"Play again now"):"";}}
@@ -1037,7 +1037,7 @@ function onBox(d,prev){
 Remote.listeners.push(onBox);
 setInterval(()=>{const sc=$("scCarton");if(Remote.ok&&!document.hidden&&sc.classList.contains("on"))Remote.refresh().catch(()=>{});},10000);
 function showIntro(){showBox();const sc=$("scCarton");sc.classList.add("intro");$("iLeft").textContent=Store.total(Store.load());$("iTotal").textContent=TOTAL;
-  $("iTitle").textContent=JA?"リップサービス":"RIP SERVICE";refreshWait();}
+  $("iTitle").textContent="RIP SERVICE";refreshWait();}
 $("bStart").onclick=()=>{if(!ready())return;ac();$("scCarton").classList.remove("intro");if(me.draws>0)goCarton();else openDice();};
 $("bInvite").innerHTML=`${L.share}<small>${JA?"すぐ引ける":"play now"}</small>`;$("bInvite").onclick=shareInvite;
 function goGold(){goldMode=true;scene("scCarton");buildCarton();$("scCarton").classList.remove("idle");}
