@@ -120,13 +120,16 @@ geo();drawBase();order.forEach((id,i)=>{if(owned.has(id))place(id,250+i*170)});c
 addEventListener('resize',layout);
 // reflection follows device tilt (gyro) or mouse
 let tgt=40,cur=40,granted=false,listening=false;
-function onTilt(e){if(e.gamma==null)return;const g=e.gamma,b=(e.beta||45)-45;tgt=Math.max(-25,Math.min(125,50+g*1.8+b*.7))}
+const DBG=/debug/.test(location.search);let dbg=null;if(DBG){dbg=document.createElement('div');dbg.style.cssText='position:fixed;left:8px;bottom:8px;z-index:9999;background:#000c;color:#0f0;font:12px monospace;padding:6px 8px;border-radius:6px;white-space:pre';document.body.appendChild(dbg)}
+const D={api:0,perm:'-',ev:0,g:'-',b:'-',tap:0};function upd(){if(dbg)dbg.textContent='v3 api:'+D.api+' perm:'+D.perm+' taps:'+D.tap+'\nevents:'+D.ev+' g:'+D.g+' b:'+D.b}
+function onTilt(e){D.ev++;D.g=e.gamma==null?'null':e.gamma.toFixed(1);D.b=e.beta==null?'null':e.beta.toFixed(1);upd();if(e.gamma==null)return;const g=e.gamma,b=(e.beta||45)-45;tgt=Math.max(-25,Math.min(125,50+g*1.8+b*.7))}
 function listen(){if(listening)return;listening=true;addEventListener('deviceorientation',onTilt)}
 const needsPerm=!!(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function');
-function ask(){if(granted||!needsPerm)return;
-  try{DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted'){granted=true;listen()}}).catch(()=>{})}catch(e){}}
+function ask(){D.tap++;upd();if(granted||!needsPerm)return;
+  try{DeviceOrientationEvent.requestPermission().then(r=>{D.perm=r;upd();if(r==='granted'){granted=true;listen()}}).catch(err=>{D.perm='err:'+err.name;upd()})}catch(e){D.perm='throw:'+e.name;upd()}}
 // iOS only grants this from a real user activation (touchend / click), not from touchstart/pointerdown
 ['touchend','click'].forEach(t=>addEventListener(t,ask,{capture:true}));
+D.api=needsPerm?'ios':(window.DeviceOrientationEvent?'std':'none');upd();
 if(!needsPerm)listen();
 addEventListener('mousemove',e=>{const r=stage.getBoundingClientRect();tgt=-10+(e.clientX-r.left)/r.width*120});
 (function loop(){cur+=(tgt-cur)*.12;stage.style.setProperty('--p',cur.toFixed(2)+'%');requestAnimationFrame(loop)})();
