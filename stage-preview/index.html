@@ -119,11 +119,15 @@ zoom.onclick=()=>zoom.classList.remove('on');
 geo();drawBase();order.forEach((id,i)=>{if(owned.has(id))place(id,250+i*170)});count();
 addEventListener('resize',layout);
 // reflection follows device tilt (gyro) or mouse
-let tgt=40,cur=40,asked=false;
+let tgt=40,cur=40,granted=false,listening=false;
 function onTilt(e){if(e.gamma==null)return;const g=e.gamma,b=(e.beta||45)-45;tgt=Math.max(-25,Math.min(125,50+g*1.8+b*.7))}
-function ask(){if(asked)return;asked=true;try{if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')addEventListener('deviceorientation',onTilt)}).catch(()=>{})}else addEventListener('deviceorientation',onTilt)}catch(e){}}
-addEventListener('pointerdown',ask,{capture:true});
-if(!(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'))addEventListener('deviceorientation',onTilt);
+function listen(){if(listening)return;listening=true;addEventListener('deviceorientation',onTilt)}
+const needsPerm=!!(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function');
+function ask(){if(granted||!needsPerm)return;
+  try{DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted'){granted=true;listen()}}).catch(()=>{})}catch(e){}}
+// iOS only grants this from a real user activation (touchend / click), not from touchstart/pointerdown
+['touchend','click'].forEach(t=>addEventListener(t,ask,{capture:true}));
+if(!needsPerm)listen();
 addEventListener('mousemove',e=>{const r=stage.getBoundingClientRect();tgt=-10+(e.clientX-r.left)/r.width*120});
 (function loop(){cur+=(tgt-cur)*.12;stage.style.setProperty('--p',cur.toFixed(2)+'%');requestAnimationFrame(loop)})();
 </script></body></html>
