@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>キャンディ・ガール（サンプル）</title>
+<style>
+:root{--pri:#5b3fa6;--ink:#2a1b52;--mute:#6c5a99}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#120b26;font-family:"Hiragino Maru Gothic ProN","Zen Maru Gothic","M PLUS Rounded 1c",sans-serif;color:var(--ink);overflow:hidden;user-select:none;-webkit-user-select:none}
+#app{position:relative;max-width:480px;height:100%;margin:0 auto;overflow:hidden;background:#170e2f}
+.bg{position:absolute;inset:-40px;background:url(cover.jpg) center/cover;filter:blur(38px) saturate(1.3) brightness(.45);transform:scale(1.1)}
+.top{position:absolute;left:12px;right:12px;top:12px;height:72px;background:#fff;border-radius:36px;display:flex;align-items:center;gap:12px;padding:0 22px 0 14px;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.back{width:44px;height:44px;border-radius:50%;border:none;background:#efe7fb;color:var(--pri);font:900 20px/1 inherit;display:grid;place-items:center;flex:none}
+.top h1{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.top h1 .t1{font-size:19px;font-weight:900;white-space:nowrap}
+.top h1 .t2{font-size:12px;font-weight:700;color:var(--mute);letter-spacing:.08em}
+.feat{position:absolute;left:50%;top:96px;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;border-radius:30px;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);color:#fff;white-space:nowrap}
+.feat .ft{font-size:13px;font-weight:700;opacity:.75;letter-spacing:.06em}
+.feat .fn{font-size:17px;font-weight:900}
+.feat .av{text-decoration:none;width:38px;height:38px;border-radius:50%;background:#000;color:#fff;font-weight:900;font-size:18px;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
+.stagebox{position:absolute;left:0;right:0;top:150px;bottom:150px;display:flex;align-items:center;justify-content:center}
+.cover{position:relative;height:100%;max-width:calc(100% - 48px);aspect-ratio:964/1280;border-radius:22px;overflow:hidden;
+ box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 calc(10px + var(--lv,0)*60px) rgba(255,190,240,calc(.15 + var(--lv,0)*.6));transform:scale(calc(1 + var(--lv,0)*.025));transition:transform .08s}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.ctrl{position:absolute;left:24px;right:24px;bottom:34px;display:flex;align-items:center;gap:16px;color:#fff}
+.play{flex:none;width:72px;height:72px;border-radius:50%;border:none;background:#fff;color:var(--pri);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer}
+.play svg{width:30px;height:30px}
+.bar{flex:1;display:flex;flex-direction:column;gap:8px}
+.track{position:relative;height:28px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.track .rail{position:absolute;left:0;right:0;height:6px;border-radius:3px;background:rgba(255,255,255,.25)}
+.track .fill{position:absolute;left:0;height:6px;border-radius:3px;background:linear-gradient(90deg,#ffd6f6,#fff)}
+.track .knob{position:absolute;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.time{display:flex;justify-content:space-between;font-size:12px;font-weight:700;opacity:.8;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div id="app">
+ <div class="bg"></div>
+ <div class="top"><button class="back">‹</button><h1><span class="t1">キャンディ・ガール</span><span class="t2">モコクンのテーマソング</span></h1></div>
+ <div class="feat"><span class="ft">feat.</span><span class="fn">おぐ</span><a class="av" href="https://x.com/ogog777mo" target="_blank" rel="noopener" aria-label="おぐ on X">𝕏</a></div>
+ <div class="stagebox"><div class="cover" id="cover"><img src="cover.jpg" alt=""></div></div>
+ <div class="ctrl">
+  <button class="play" id="play" aria-label="play"><svg viewBox="0 0 24 24" id="ico"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></button>
+  <div class="bar"><div class="track" id="track"><div class="rail"></div><div class="fill" id="fill"></div><div class="knob" id="knob"></div></div>
+   <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div></div>
+ </div>
+ <audio id="au" src="song.mp3" preload="metadata" playsinline></audio>
+</div>
+<script>
+const au=document.getElementById('au'),cover=document.getElementById('cover');
+const PLAY='<path fill="currentColor" d="M8 5v14l11-7z"/>',PAUSE='<path fill="currentColor" d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+const fmt=t=>{t=Math.max(0,t|0);return (t/60|0)+':'+String(t%60).padStart(2,'0')};
+let ctx=null,an=null,buf=null;
+function setupAudio(){if(ctx)return;try{ctx=new (window.AudioContext||window.webkitAudioContext)();const src=ctx.createMediaElementSource(au);an=ctx.createAnalyser();an.fftSize=256;buf=new Uint8Array(an.frequencyBinCount);src.connect(an);an.connect(ctx.destination)}catch(e){ctx=null}}
+play.onclick=()=>{setupAudio();if(ctx&&ctx.state==='suspended')ctx.resume();au.paused?au.play():au.pause()};
+au.onplay=()=>{ico.innerHTML=PAUSE};au.onpause=au.onended=()=>{ico.innerHTML=PLAY};
+au.onloadedmetadata=()=>{dur.textContent=fmt(au.duration)};
+function paint(){const d=au.duration||1,p=au.currentTime/d*100;fill.style.width=p+'%';knob.style.left=p+'%';cur.textContent=fmt(au.currentTime);
+  let lv=0;if(an&&!au.paused){an.getByteFrequencyData(buf);let s=0;for(let i=1;i<24;i++)s+=buf[i];lv=Math.min(1,Math.max(0,(s/23-90)/120))}
+  cover.style.setProperty('--lv',lv.toFixed(3));requestAnimationFrame(paint)}
+paint();
+function seek(e){const r=track.getBoundingClientRect();const x=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));if(au.duration)au.currentTime=x*au.duration}
+let drag=false;track.addEventListener('pointerdown',e=>{drag=true;track.setPointerCapture(e.pointerId);seek(e)});
+track.addEventListener('pointermove',e=>{if(drag)seek(e)});track.addEventListener('pointerup',()=>drag=false);
+if('mediaSession' in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:'キャンディ・ガール',artist:'おぐ × Sugar Cage',album:'RIP SERVICE',artwork:[{src:'cover.jpg',sizes:'964x1280',type:'image/jpeg'}]})}catch(e){}}
+</script></body></html>
