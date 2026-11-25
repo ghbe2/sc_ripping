@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SIN CALENDAR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 2つの世界の本が、霧の書庫の1段に混ざって並ぶ
+   IDEA: 両背表紙の開かない本7冊＝カレンダーの縦1列ずつ。表＝ヴィランズ（敵：古い布＋金箔）、裏＝しゅがけ（悪：黒エナメル＋檻＋溶けた砂糖）
+   PICTURE: 霧に沈んだ巻数。並べ替えて今月になると、土日・祝日・今日が霧の奥で灯る
+   COLOUR/TYPE: 箔の金×黒布／罪の色の毒っぽい差し色。明朝の箔押し、巻数はローマ数字
+   LAYOUT: 書庫の壁（画面外まで続く棚）→惑星記号の曜日→7冊→棚板 */
+:root{--gold:#c9a861;--gold-hi:#ecd9a0;--serif:"Cormorant Garamond","Times New Roman",serif;--mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;--sym:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2",serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#17131a}
+body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 34px;overflow-x:hidden;-webkit-user-select:none;user-select:none;background:radial-gradient(90% 60% at 50% 0%,#2a2128 0%,#17131a 70%)}
+body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background:radial-gradient(50% 35% at 20% 85%,rgba(190,182,204,.10),transparent 70%),radial-gradient(45% 30% at 80% 25%,rgba(190,182,204,.07),transparent 70%);animation:drift 45s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate3d(-12%,1%,0)}100%{transform:translate3d(12%,-2%,0)}}
+
+/* 書庫の壁 */
+.case{position:relative;width:100vw;overflow:hidden;background:radial-gradient(70% 60% at 50% 45%,#1d1513,#0d0a0b 75%)}
+.case::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;background:linear-gradient(90deg,#0c090b 0,transparent 16%,transparent 84%,#0c090b 100%),linear-gradient(180deg,#0c090b 0,transparent 12%,transparent 88%,#0c090b 100%)}
+.wds{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;width:min(560px,calc(100vw - 24px));margin:8px auto 6px;position:relative;z-index:8}
+.wd{text-align:center;line-height:1.1;color:#c9b08a}
+.wd b{display:block;font-size:17px;font-family:var(--sym);font-weight:400}
+.wd.sun b{color:#e5a27c}.wd.sat b{color:#a3b4cc}
+.stage{position:relative;width:min(560px,calc(100vw - 24px));margin:0 auto;z-index:8;perspective:1100px;perspective-origin:50% 40%;transform-style:preserve-3d;touch-action:none}
+.board{position:relative;height:16px;z-index:7;background:linear-gradient(180deg,#4a3527,#2e2017 45%,#1a110c);box-shadow:0 -3px 8px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,225,190,.16)}
+.bd{position:relative;height:12px;z-index:7;background:linear-gradient(180deg,#3d2c20,#24180f 50%,#160e09);box-shadow:0 3px 8px rgba(0,0,0,.6)}
+.board,.bd{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.gh{position:relative;width:100%;overflow:hidden;z-index:1;pointer-events:none}
+.gh.side{position:absolute;left:0;z-index:0}
+.gh.up{height:calc(var(--ch,300px)*.36);-webkit-mask-image:linear-gradient(180deg,transparent,#000 75%);mask-image:linear-gradient(180deg,transparent,#000 75%)}
+.gh.dn{height:calc(var(--ch,300px)*.3);-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent);mask-image:linear-gradient(180deg,#000 20%,transparent)}
+.gb{position:absolute;bottom:0;border-radius:2px 2px 0 0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(255,255,255,.05) 35%,rgba(0,0,0,.1) 60%,rgba(0,0,0,.6)),var(--g);opacity:.8}
+.gb::before,.gb::after{content:"";position:absolute;left:0;right:0;height:3px;border-top:1px solid rgba(201,168,97,var(--ba));border-bottom:1px solid rgba(201,168,97,var(--ba))}
+.gb::before{top:6%}.gb::after{bottom:8%}
+.wallfog{position:absolute;inset:0;z-index:5;pointer-events:none}
+.wallfog i{position:absolute;inset:0;opacity:.28;background-repeat:repeat}
+.wallfog i:nth-child(2){opacity:.18}
+
+/* 本（厚みのある箱） */
+.card{position:absolute;top:0;cursor:pointer;transform-style:preserve-3d}
+.card:focus-visible{outline:1px solid var(--gold-hi);outline-offset:2px}
+.card.mv{transition:left .3s cubic-bezier(.3,.1,.2,1)}
+.card.lift{z-index:15;transition:none}
+.box{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.1,.2,1)}
+.f3{position:absolute;top:0;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.f3.spv{left:0;width:100%;transform:translateZ(calc(var(--d)/2))}
+.f3.sps{left:0;width:100%;transform:rotateY(180deg) translateZ(calc(var(--d)/2))}
+.f3.cv,.f3.cs{width:var(--d);left:calc((var(--s) - var(--d))/2)}
+.f3.cv{transform:rotateY(90deg) translateZ(calc(var(--s)/2))}
+.f3.cs{transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:3px 3px 2px 2px;overflow:hidden}
+.face *{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.face::after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,.08) 14%,rgba(255,255,255,.12) 32%,rgba(255,255,255,0) 52%,rgba(0,0,0,.12) 78%,rgba(0,0,0,.48))}
+.cap{position:absolute;left:0;right:0;top:0;height:9%;display:flex;align-items:center;justify-content:center;z-index:2}
+.cap span{font-size:var(--capf);line-height:1;white-space:nowrap}
+.bg{position:absolute;left:0;right:0;top:9%;height:61%}
+.win{position:absolute;inset:0 10% 7%;overflow:hidden}
+.win img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;letter-spacing:.12em;white-space:nowrap}
+.sp:has(.line) .ph{display:none}
+.line{position:absolute;top:13%;z-index:3;writing-mode:vertical-rl;line-height:1.3;max-height:54%;overflow:hidden;letter-spacing:.12em;font-weight:500}
+.line.r{right:12%}.line.l{left:12%}
+.cells{position:absolute;left:0;right:0;bottom:0;height:30%;display:grid;grid-template-rows:repeat(6,1fr);z-index:1}
+.cells div{display:flex;align-items:center;justify-content:center;font-weight:600;white-space:nowrap;transition:color .9s ease,text-shadow .9s ease}
+.cells div.ob{background:linear-gradient(180deg,#8e1f2b,#6a1520 55%,#55101a)!important;box-shadow:inset 0 1px 0 #e9d39a,inset 0 -1px 0 #e9d39a!important;border-top:none!important;color:transparent!important}
+.coin{position:absolute;left:50%;top:calc(70% - var(--cs)*.62);transform:translate(-50%,-50%);z-index:7;width:var(--cs);height:var(--cs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);line-height:1;color:#3a2a12;font-family:var(--sym);background:radial-gradient(circle at 35% 30%,#f6e6b4,#c9a861 55%,#7d6435);box-shadow:0 1px 3px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,240,200,.45);filter:grayscale(1) brightness(.5);opacity:.55}
+.rim{position:absolute;inset:0;border:1px solid rgba(236,217,160,.75);border-radius:4px;opacity:0;pointer-events:none;z-index:8;box-shadow:inset 0 0 14px rgba(236,217,160,.45)}
+.card.ok .rim{animation:okflash 1.5s ease}
+@keyframes okflash{0%{opacity:0}22%{opacity:.85}100%{opacity:0}}
+
+/* ヴィランズ＝敵：古い布張り＋金箔 */
+.v{background:radial-gradient(rgba(255,255,255,.04) .7px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,#1b1519,#0d0a0d)}
+.sp.v::before{content:"";position:absolute;left:0;right:0;top:1.3%;height:4px;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);opacity:.75;z-index:2}
+.v .cap span,.v .ph{background:linear-gradient(180deg,#f5e6b2,#b38c45 58%,#ead49b);-webkit-background-clip:text;background-clip:text;color:transparent;font-family:var(--mincho);font-weight:700}
+.v .cap{padding-top:3%}
+.v .win{box-shadow:0 0 0 1px var(--gold),0 0 0 3px #0e0b0e,0 0 0 4px rgba(201,168,97,.45);background:linear-gradient(180deg,#120e11,color-mix(in srgb,var(--c) 38%,#120e11))}
+.v .ph{opacity:.8;font-weight:500}
+.v .line{font-family:var(--mincho);color:#fff;text-shadow:0 0 6px rgba(0,0,0,.95),0 0 2px #000}
+.v .cells{background:linear-gradient(180deg,#151013,#0b080a);border-top:1px solid var(--gold)}
+.v .cells div{color:#dac28c;font-family:var(--serif);box-shadow:inset 0 1px 0 rgba(201,168,97,.3),inset 0 2px 0 rgba(0,0,0,.6)}
+.v .cells div:first-child{box-shadow:none}
+
+/* しゅがけ＝悪：黒エナメル＋檻＋溶けた砂糖 */
+.s{background:linear-gradient(90deg,transparent 28%,rgba(255,255,255,.14) 36%,transparent 45%),linear-gradient(180deg,#0b080b,#030203 55%,#0d090c)}
+.s .cap{border-bottom:1px solid color-mix(in srgb,var(--c) 70%,#000)}
+.s .cap span{font-family:var(--mincho);font-weight:700;color:color-mix(in srgb,var(--c) 55%,#fff);text-shadow:0 0 6px color-mix(in srgb,var(--c) 80%,transparent)}
+.s .bg::before{content:"";position:absolute;left:0;right:0;top:0;height:13%;z-index:3;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 62%,#000),color-mix(in srgb,var(--c) 30%,#000) 70%,rgba(255,255,255,.35));-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100V8C96 8 95 22 92 22S89 9 85 9 81 16 78 16 75 8 70 8 66 27 62 27 58 9 53 9 49 14 46 14 43 8 38 8 35 20 31 20 28 8 23 8 19 13 16 13 13 8 8 8 5 18 3 18 1 8 0 8Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'%3E%3Cpath d='M0 0H100V8C96 8 95 22 92 22S89 9 85 9 81 16 78 16 75 8 70 8 66 27 62 27 58 9 53 9 49 14 46 14 43 8 38 8 35 20 31 20 28 8 23 8 19 13 16 13 13 8 8 8 5 18 3 18 1 8 0 8Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+.s .win{top:0;background:linear-gradient(180deg,#0a070a,color-mix(in srgb,var(--c) 30%,#060406));box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 75%,#000),0 0 8px color-mix(in srgb,var(--c) 35%,transparent)}
+.s .win::before{content:"";position:absolute;left:0;right:0;top:12%;bottom:10%;border-top:1.5px solid rgba(18,12,16,.92);border-bottom:1.5px solid rgba(18,12,16,.92);z-index:3;pointer-events:none}
+.s .win::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 6px,rgba(18,12,16,.9) 6px 7.5px,rgba(255,255,255,.18) 7.5px 8px)}
+.s .ph{font-family:var(--mincho);color:color-mix(in srgb,var(--c) 55%,#fff);text-shadow:0 0 8px color-mix(in srgb,var(--c) 70%,transparent)}
+.s .line{font-family:var(--mincho);color:color-mix(in srgb,var(--c) 40%,#fff);text-shadow:0 0 6px #000,0 0 3px #000}
+.s .cells{background:linear-gradient(180deg,#080608,#020102);border-top:1px solid color-mix(in srgb,var(--c) 70%,#000)}
+.s .cells div{font-family:var(--serif);font-style:italic;color:color-mix(in srgb,var(--c) 50%,#fff);border-top:1px solid color-mix(in srgb,var(--c) 22%,transparent)}
+.s .cells div:first-child{border-top:none}
+
+/* 完成の灯り（巻数そのものの色が変わる） */
+.cells div.gold{color:#ffe6a3;text-shadow:0 0 6px rgba(255,205,110,.9)}
+.cells div.gold.dim{color:#e9cf8f;text-shadow:0 0 4px rgba(255,205,110,.5)}
+.cells div.red{color:#ff8b7c;text-shadow:0 0 5px rgba(255,95,80,.6)}
+.cells div.blue{color:#93b4ff;text-shadow:0 0 5px rgba(100,150,255,.6)}
+.cells div.silver{color:#eef2f8;text-shadow:0 0 5px rgba(232,238,248,.7)}
+
+/* 裏表紙 */
+.bk{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;border-radius:2px}
+.bk-art{position:relative;height:52%;margin:7% 7% 0;overflow:hidden;flex:none}
+.bk-art img{width:100%;height:100%;object-fit:cover;display:block}
+.bk-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-size:22px;letter-spacing:.3em}
+.bk-line{position:absolute;top:7%;right:6%;writing-mode:vertical-rl;font-size:13px;line-height:1.35;letter-spacing:.12em;max-height:86%;z-index:2}
+.bk-txt{flex:1;display:flex;flex-direction:column;padding:4.5% 8% 6%;min-height:0}
+.bk-sin{display:flex;align-items:baseline;gap:6px;font-size:11px;letter-spacing:.2em}
+.bk-sin b{font-family:var(--sym);font-weight:400;font-size:13px}
+.bk-sin i{font-style:normal;font-family:var(--serif);letter-spacing:.25em;margin-left:auto;font-size:10px;opacity:.8}
+.bk-name{font-size:17px;margin:4px 0 6px;letter-spacing:.06em;font-family:var(--mincho);font-weight:700}
+.bk-story{font-size:12px;line-height:1.72;flex:1;overflow:hidden;text-align:justify;font-family:var(--mincho)}
+.bk-story.ghost{opacity:.4}
+.bk-foot{font-family:var(--serif);font-size:9px;letter-spacing:.5em;text-align:center;margin-top:6px;opacity:.75}
+.bk.v{color:#ddd2c4;box-shadow:inset 0 0 0 6px #0d0a0d,inset 0 0 0 7px rgba(201,168,97,.7),inset 0 0 0 9px #0d0a0d,inset 0 0 0 10px rgba(201,168,97,.35)}
+.bk.v .bk-art{box-shadow:0 0 0 1px var(--gold);background:linear-gradient(180deg,#120e11,color-mix(in srgb,var(--c) 38%,#120e11))}
+.bk.v .bk-ph,.bk.v .bk-name,.bk.v .bk-sin,.bk.v .bk-foot{color:var(--gold-hi)}
+.bk.v .bk-line{color:#fff;font-family:var(--mincho);text-shadow:0 0 6px #000,0 0 2px #000}
+.bk.s{background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.1) 33%,transparent 42%),linear-gradient(180deg,#0b080b,#030203 60%,#0d090c);color:#cfc3cc}
+.bk.s::before{content:"";position:absolute;inset:7px;border:1px solid color-mix(in srgb,var(--c) 60%,#000);box-shadow:0 0 8px color-mix(in srgb,var(--c) 30%,transparent);pointer-events:none}
+.bk.s .bk-art{box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 75%,#000);background:linear-gradient(180deg,#0a070a,color-mix(in srgb,var(--c) 30%,#060406))}
+.bk.s .bk-art::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 12px,rgba(18,12,16,.85) 12px 14px,rgba(255,255,255,.16) 14px 15px)}
+.bk.s .bk-ph,.bk.s .bk-name{color:color-mix(in srgb,var(--c) 55%,#fff)}
+.bk.s .bk-ph{font-family:var(--mincho)}
+.bk.s .bk-sin,.bk.s .bk-foot{color:color-mix(in srgb,var(--c) 60%,#fff)}
+.bk.s .bk-line{font-family:var(--mincho);color:#f0e6ee;text-shadow:0 0 6px #000}
+
+/* 霧と灯り（位置と奥行きは JS） */
+.fog{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:hidden;-webkit-mask-composite:source-in;mask-composite:intersect;transition:opacity 1.6s ease}
+.fog.clear{opacity:0;transition:opacity .4s ease}
+.fog::before{content:"";position:absolute;inset:0;background:rgba(118,112,130,var(--dense,.62));-webkit-backdrop-filter:blur(2.5px);backdrop-filter:blur(2.5px)}
+.fog i{position:absolute;inset:0;opacity:.22;background-repeat:repeat}
+.fog i:nth-child(2){opacity:.75}
+.fog i:nth-child(3){display:none}
+.lights{position:absolute;inset:0;z-index:11;pointer-events:none;opacity:0;transition:opacity .4s}
+.lights.on{opacity:1}
+.lt{position:absolute;transform:translate(-50%,-50%);border-radius:50%;filter:blur(8px);opacity:0;animation:glowin 1s ease forwards}
+.lt.gold{background:radial-gradient(closest-side,rgba(255,205,110,.85),rgba(255,205,110,0));animation:glowin 1s ease forwards,pulse 2.4s ease-in-out 1s infinite alternate}
+.lt.gold.dim{animation:glowdim 1s ease forwards,pulsedim 2.4s ease-in-out 1s infinite alternate}
+.lt.red{background:radial-gradient(closest-side,rgba(255,95,80,.6),rgba(255,95,80,0))}
+.lt.blue{background:radial-gradient(closest-side,rgba(100,150,255,.6),rgba(100,150,255,0))}
+.lt.silver{background:radial-gradient(closest-side,rgba(232,238,248,.65),rgba(232,238,248,0))}
+@keyframes glowin{to{opacity:.95}}
+@keyframes glowdim{to{opacity:.6}}
+@keyframes pulse{from{opacity:.95}to{opacity:.6}}
+@keyframes pulsedim{from{opacity:.6}to{opacity:.3}}
+.finger{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,.18) 55%,transparent 70%);box-shadow:0 0 14px rgba(255,255,255,.25);z-index:20;opacity:0;pointer-events:none;transition:opacity .4s,scale .2s;transform:translateZ(var(--fz,4px)) scale(var(--fsc,1))}
+.finger.on{opacity:1}
+.finger.press{scale:.8}
+
+/* 文字・札 */
+.ctl2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+body:not(.manual) .mon{display:none}
+.foot{margin-top:14px;text-align:center;max-width:30em;min-height:1.8em;transition:opacity .8s}
+.foot.gone{opacity:0}
+.zhint,.foot{font-family:var(--mincho);font-size:11px;letter-spacing:.32em;color:rgba(214,196,150,.58);text-shadow:0 0 10px rgba(0,0,0,.95);line-height:2}
+.zhint::before,.zhint::after,.foot::before,.foot::after{content:"";display:inline-block;width:22px;height:1px;vertical-align:middle;margin:0 10px;background:linear-gradient(90deg,transparent,rgba(214,196,150,.5))}
+.zhint::after,.foot::after{transform:scaleX(-1)}
+.foot:empty::before,.foot:empty::after{display:none}
+.zbtn{font-family:var(--mincho);font-size:12px;letter-spacing:.32em;color:#e9d7a6;background:linear-gradient(180deg,#1c1519,#0b080a);border:1px solid rgba(201,168,97,.55);border-radius:1px;min-height:44px;padding:10px 20px 10px 26px;cursor:pointer;box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.22),0 6px 14px rgba(0,0,0,.6);text-shadow:0 1px 0 #000}
+.zbtn:active{transform:translateY(1px)}
+.zbtn:focus-visible{outline:1px solid var(--gold-hi)}
+
+/* 手に取った本 */
+.zoom{position:fixed;inset:0;z-index:20;background:rgba(16,12,15,.93);visibility:hidden;opacity:0;pointer-events:none;transition:opacity .35s,visibility 0s linear .35s,background-color .45s}
+.zoom.on{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .3s,background-color .45s}
+.zoom.closing{background-color:rgba(16,12,15,0)}
+.zstage{position:absolute;left:0;right:0;top:var(--zt,80px);height:var(--zh,400px);display:flex;justify-content:center;align-items:flex-start;perspective:1400px;touch-action:none}
+.book3d{position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,.1,.2,1);cursor:pointer}
+.zhint{position:absolute;left:0;right:0;top:calc(var(--zt,80px) + var(--zh,400px)*1.12 + 14px);text-align:center;transition:opacity .25s}
+.zrow{position:absolute;left:0;right:0;top:calc(var(--zt,80px) + var(--zh,400px)*1.12 + 44px);display:flex;gap:10px;justify-content:center;transition:opacity .25s}
+.zoom.closing .zrow,.zoom.closing .zhint{opacity:0}
+
+.tune{width:100%;max-width:560px;margin-top:16px;padding:0 12px;font-size:12px;color:#cbbcc4;display:grid;gap:10px}
+.tune label{display:grid;grid-template-columns:10em minmax(0,1fr) 3em;align-items:center;gap:8px}
+.tune input{width:100%}
+.tune pre{white-space:pre-wrap;font-size:11px;color:#9d8f97;-webkit-user-select:text;user-select:text}
+@media (prefers-reduced-motion:reduce){body::before{animation:none}.fog{transition:none}.lt{animation:glowin .01s forwards!important}}
+</style></head><body>
+<div class="case">
+ <div class="wds" id="wds"></div>
+ <div class="stage" id="stage"><div class="fog" id="fog"><i></i><i></i><i></i></div><div class="lights" id="lights"></div></div>
+ <div class="board"></div>
+</div>
+<div class="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button></div>
+<p class="foot" id="foot"></p>
+<div class="tune" id="tune" hidden></div>
+<div class="zoom" id="zoom"><div class="zstage"><div class="book3d" id="book"></div></div><p class="zhint">左右に回す　・　下へ払えば棚へ</p><div class="zrow"><button class="zbtn" id="zc">棚に戻す</button></div></div>
+<script>
+{
+// 罪ごとの本。v＝ヴィランズ側、s＝しゅがけ側。ヴィランズの絵・台詞・物語はピノンさんの許可待ちのため空
+const SN={
+1:{sin:"傲慢",lat:"SUPERBIA",col:"#b8943a",v:"？",s:"アルバ"},
+2:{sin:"強欲",lat:"AVARITIA",col:"#3f8a62",v:"？",s:"ジーナ"},
+3:{sin:"嫉妬",lat:"INVIDIA",col:"#4a6fb8",v:"？",s:"エノ"},
+4:{sin:"憤怒",lat:"IRA",col:"#c2362a",v:"？",s:"ウーヨン",sline:"なら、わたしは、いつまで待てばいい。"},
+5:{sin:"色欲",lat:"LUXURIA",col:"#b54a86",v:"？",s:"マルガリティフェラ"},
+6:{sin:"暴食",lat:"GULA",col:"#c27530",v:"？",s:"デロルス"},
+7:{sin:"怠惰",lat:"ACEDIA",col:"#6f5aa8",v:"？",s:"ウェンカ"}};
+const PLN={1:"☉",2:"☿",3:"☾",4:"♂",5:"♀",6:"♃",7:"♄"};
+const V="︎";
+const RNs=n=>{const t=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let r="";for(const[v,c]of t)while(n>=v){r+=c;n-=v}return r};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+const known=s=>s&&s!=="？";
+const now=new Date(),y=now.getFullYear(),m=now.getMonth()+1,td=now.getDate();
+const fm=new Date(y,m-1,1).getDay(),lm=new Date(y,m,0).getDate(),len=lm;
+let cw=40,ch=300,D=120,lastD=0,zR=0,zk=0,solving=false,wasDone=false,pt=null,zd=null;
+const G=3,PP=1400,order=[1,2,3,4,5,6,7];
+const P={scale:240,speed:1,clear:.4,dense:.62,art:.3,rattle:.45};
+try{Object.assign(P,JSON.parse(localStorage.getItem("sinTune2")||"{}"))}catch(_){}
+// 正解：本kの位置と向き（表＝ヴィランズ）／位置pに来る本
+const tp=k=>(k-1+fm)%7,tfr=k=>k-1+fm<=6,tk=p=>p>=fm?p-fm+1:p-fm+8;
+
+function jpHol(Y){
+ const s=new Set(),K=(a,b)=>a*100+b,dt=(a,b)=>new Date(Y,a-1,b);
+ [[1,1],[2,11],[2,23],[4,29],[5,3],[5,4],[5,5],[8,11],[11,3],[11,23]].forEach(([a,b])=>s.add(K(a,b)));
+ const mon=(a,n)=>{const w=dt(a,1).getDay();return 1+(1-w+7)%7+7*(n-1)};
+ s.add(K(1,mon(1,2)));s.add(K(7,mon(7,3)));s.add(K(9,mon(9,3)));s.add(K(10,mon(10,2)));
+ const q=Math.floor((Y-1980)/4);s.add(K(3,Math.floor(20.8431+.242194*(Y-1980)-q)));s.add(K(9,Math.floor(23.2488+.242194*(Y-1980)-q)));
+ for(let d=2;d<30;d++)if(!s.has(K(9,d))&&s.has(K(9,d-1))&&s.has(K(9,d+1))&&dt(9,d).getDay()!==0)s.add(K(9,d));
+ [...s].sort((a,b)=>a-b).forEach(h=>{const a=Math.floor(h/100),b=h%100;if(dt(a,b).getDay()===0){const d=dt(a,b);do{d.setDate(d.getDate()+1)}while(s.has(K(d.getMonth()+1,d.getDate())));if(d.getFullYear()===Y)s.add(K(d.getMonth()+1,d.getDate()))}});
+ return s;
+}
+const H=jpHol(y);
+
+function spine(k,side){
+ const d=SN[k],isV=side==="v",src=isV?d.vimg:d.simg,pos=isV?d.vpos:d.spos,nm=isV?d.v:d.s;
+ const img=src?'<img src="'+src+'" alt="" style="object-position:'+(pos||"50% 50%")+'">':'<div class="ph">'+esc(known(nm)?nm:d.sin)+'</div>';
+ const ln=isV?d.vline:d.sline,ls=(isV?d.vside:d.sside)||"r";
+ return '<div class="face sp '+side+'" style="--c:'+d.col+'"><div class="cap"><span>'+d.sin+'</span></div><div class="bg"><div class="win">'+img+'</div></div>'+(ln?'<div class="line '+ls+'">'+esc(ln)+'</div>':'')+'<div class="cells">'+'<div></div>'.repeat(6)+'</div><div class="coin">'+PLN[k]+V+'</div><div class="rim"></div></div>';
+}
+function cover(k,side){
+ const d=SN[k],isV=side==="v",src=isV?d.vimg:d.simg,pos=isV?d.vpos:d.spos,nm=isV?d.v:d.s,st=isV?d.vstory:d.sstory,ln=isV?d.vline:d.sline;
+ return '<div class="bk '+side+'" style="--c:'+d.col+'"><div class="bk-art">'+(src?'<img src="'+src+'" alt="" style="object-position:'+(pos||"50% 30%")+'">':'<div class="bk-ph">'+esc(known(nm)?nm:"絵は未着")+'</div>')+(ln?'<div class="bk-line">'+esc(ln)+'</div>':'')+'</div>'+
+  '<div class="bk-txt"><div class="bk-sin"><b>'+PLN[k]+V+'</b>'+d.sin+'<i>'+d.lat+'</i></div><div class="bk-name">'+esc(known(nm)?nm:"――")+'</div>'+
+  '<p class="bk-story'+(st?'':' ghost')+'">'+esc(st||"ここにミニストーリーが入る。")+'</p><div class="bk-foot">'+(isV?"VILLAINS":"SUGAR CAGE")+'</div></div></div>';
+}
+const faces=k=>'<div class="f3 spv">'+spine(k,"v")+'</div><div class="f3 sps">'+spine(k,"s")+'</div><div class="f3 cv">'+cover(k,"v")+'</div><div class="f3 cs">'+cover(k,"s")+'</div>';
+const fs=(t,w,rh)=>Math.max(7,Math.min(w*.3,rh*.72,w*.8/((t.length||1)*.56)));
+// 背表紙の巻数：表は1段目から、裏は2段目から
+const numAt=(k,fr,r)=>{const n=fr?(r<5?k+7*r:0):(r>0?k+7*(r-1):0);return n>0&&n<=31?n:0};
+function paint(root,k,w,rh){
+ [["v",true],["s",false]].forEach(([s,fr])=>root.querySelectorAll(".sp."+s+" .cells div").forEach((dv,r)=>{
+  const n=numAt(k,fr,r);dv.textContent=n?RNs(n):"";dv.className=(n&&n>len?"ob":"");dv.style.transitionDelay="0s";dv.style.fontSize=fs(dv.textContent,w,rh)+"px"}));
+}
+
+// 霧の模様（タイルできるノイズ）
+function noise(seed,lo,hi,rgb,raw){
+ const N=256,c=document.createElement("canvas");c.width=c.height=N;const g=c.getContext("2d"),im=g.createImageData(N,N);
+ let s=seed;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;const Ls=[];
+ for(let o=0;o<5;o++){const n=4<<o,a=new Float32Array(n*n);for(let i=0;i<n*n;i++)a[i]=rnd();Ls.push([n,a])}
+ const sm=t=>t*t*(3-2*t);
+ for(let yy=0;yy<N;yy++)for(let xx=0;xx<N;xx++){
+  let v=0,amp=1,tot=0;
+  for(const[n,a]of Ls){const fx=xx/N*n,fy=yy/N*n,x0=fx|0,y0=fy|0,tx=sm(fx-x0),ty=sm(fy-y0),x1=(x0+1)%n,y1=(y0+1)%n;v+=amp*((a[y0*n+x0]*(1-tx)+a[y0*n+x1]*tx)*(1-ty)+(a[y1*n+x0]*(1-tx)+a[y1*n+x1]*tx)*ty);tot+=amp;amp*=.55}
+  v/=tot;const al=raw?Math.min(1,Math.max(0,(v-.3)/.45)):sm(Math.min(1,Math.max(0,(v-lo)/(hi-lo))));
+  const i=(yy*N+xx)*4;im.data[i]=rgb[0];im.data[i+1]=rgb[1];im.data[i+2]=rgb[2];im.data[i+3]=al*255|0;
+ }
+ g.putImageData(im,0,0);return c.toDataURL();
+}
+let M1="",M2="";const WS=noise(4242,0,1,[226,220,234],true);
+function mkTex(){M1=noise(1234,P.clear-.17,P.clear+.17,[0,0,0]);M2=noise(98765,P.clear-.17,P.clear+.17,[0,0,0])}
+mkTex();
+
+const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.querySelector(".case"),foot=$("foot"),cards={};
+const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
+const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
+casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);
+const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
+const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
+const fis=[...fog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
+$("wds").innerHTML=["☉","☾","♂","☿","♃","♀","♄"].map((g,i)=>'<div class="wd'+(i==0?" sun":i==6?" sat":"")+'"><b>'+g+V+'</b></div>').join("");
+
+function clearFog(ms){fog.classList.add("clear");clearTimeout(clearFog.t);clearFog.t=setTimeout(()=>fog.classList.remove("clear"),ms||2600)}
+function setBox(c,pull,instant,fast){const b=c.firstChild;if(instant)b.style.transition="none";else b.style.transition=fast?"transform "+fast+"s ease":"";b.style.transform="translateZ("+(-D/2+pull)+"px) rotateY("+c._R+"deg)";if(instant){void b.offsetWidth;b.style.transition=""}}
+function flipTo(c,fr,delay){
+ if(c._fr===fr)return;c._fr=fr;
+ setTimeout(()=>setBox(c,D*.55),delay);
+ setTimeout(()=>{c._R+=180;setBox(c,D*.55)},delay+300);
+ setTimeout(()=>setBox(c,0),delay+950);
+}
+for(let k=1;k<=7;k++){
+ const c=document.createElement("div");c.className="card";c.tabIndex=0;c.setAttribute("role","button");c._k=k;c._p=k-1;c._fr=true;c._R=0;
+ c.innerHTML='<div class="box">'+faces(k)+'</div>';
+ c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openZ(k)}};
+ stage.appendChild(c);cards[k]=c;
+}
+// 今月の並び（日曜始まりの月だけ、全部しゅがけ側の並びも正解）
+const done=()=>{let a=true,b=fm===0;for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k)||c._fr!==tfr(k))a=false;if(c._p!==k-1||c._fr)b=false}return a||b};
+
+const GC=["#1d1519","#15191c","#22180f","#1b1120","#131313","#26161b","#141a15","#1f1d16"];
+function ghosts(){
+ const cwid=casee.clientWidth,sl=stage.offsetLeft,sr=sl+stage.offsetWidth;let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+ const row=(el,skip,top)=>{let x=-6,h="";while(x<cwid+6){const w=cw*(.55+rnd()*.85);if(skip&&x+w>sl-6&&x<sr+6){x=sr+6;continue}
+  const hh=ch*(.76+rnd()*.24),g=GC[rnd()*GC.length|0],ba=(rnd()*.35).toFixed(2);
+  h+='<i class="gb" style="left:'+x+'px;width:'+w+'px;height:'+hh+'px;'+(top?'top:'+(ch-hh)+'px;bottom:auto;':'')+'--g:'+g+';--ba:'+ba+'"></i>';x+=w+1+rnd()*2}el.innerHTML=h};
+ side.style.top=stage.offsetTop+"px";side.style.height=ch+"px";row(side,true,false);row(up,false,false);row(dn,false,true);
+}
+function lights(stagger){
+ const rh=ch*.3/6,t0=ch*.7,dn_=done();let h="";
+ for(let p=0;p<7;p++){const k=order[p],fr=cards[k]._fr;for(let r=0;r<6;r++){
+  const n=numAt(k,fr,r);if(!n||n>len)continue;
+  let cl="";if(td===n)cl=dn_?"gold":"gold dim";else if(dn_){if(H.has(m*100+n))cl="silver";else if(p===0)cl="red";else if(p===6)cl="blue"}
+  if(!cl)continue;
+  const dl=stagger?(p*.12+r*.06):0,cell=cards[k].querySelector((fr?".spv":".sps")+" .cells").children[r];cell.className+=" "+cl;cell.style.transitionDelay=dl+"s";
+  h+='<span class="lt '+cl+'" style="left:'+(p*(cw+G)+cw/2)+'px;top:'+(t0+(r+.5)*rh)+'px;width:'+(cw*1.5)+'px;height:'+(rh*2.4)+'px;animation-delay:'+dl+'s'+(cl==="gold"&&stagger?','+(dl+1.2)+'s':'')+'"></span>';
+ }}
+ L.innerHTML=h;
+}
+function fogMask(){
+ const t0=ch*.7,S=P.scale,area="linear-gradient(180deg,rgba(0,0,0,"+P.art+") 0,rgba(0,0,0,"+P.art+") "+(t0-24)+"px,#000 "+t0+"px,#000 100%)";
+ const st=fog.style,img="url("+M1+"),url("+M2+"),"+area,sz=S+"px "+S+"px,"+(S*1.7)+"px "+(S*1.7)+"px,100% 100%";
+ st.webkitMaskImage=img;st.maskImage=img;st.webkitMaskSize=sz;st.maskSize=sz;st.webkitMaskRepeat="repeat,repeat,no-repeat";st.maskRepeat="repeat,repeat,no-repeat";
+ st.webkitMaskComposite="source-in,source-in";st.maskComposite="intersect,intersect";
+ fog.style.setProperty("--dense",P.dense);
+ fis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(1.3+n*.5))+"px"});
+ wis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(2+n))+"px"});
+}
+function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;c.classList.toggle("mv",!!anim);c.style.left=(p*(cw+G))+"px";c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
+function layout(full){
+ const W=stage.clientWidth;cw=(W-G*6)/7;ch=Math.min(cw*8,innerHeight*.56);D=cw*3.4;
+ stage.style.height=ch+"px";casee.style.setProperty("--ch",ch+"px");
+ for(let k=1;k<=7;k++){const c=cards[k];c.style.width=cw+"px";c.style.height=ch+"px";c.style.setProperty("--s",cw+"px");c.style.setProperty("--d",D+"px")}
+ applyPos(false);
+ stage.style.setProperty("--capf",Math.max(9,cw*.21)+"px");stage.style.setProperty("--cs",Math.max(16,cw*.34)+"px");
+ if(D!==lastD){lastD=D;for(let k=1;k<=7;k++)setBox(cards[k],0,true)}
+ const rh=ch*.3/6;for(let k=1;k<=7;k++)paint(cards[k],k,cw,rh);
+ fogMask();
+ if(full){lights(false);ghosts()}
+ // 霧は、本がいちばん手前に出たときより前の奥行きへ。遠近で大きく見える分は縮めて元の位置に重ねる
+ const zF=D*.6+24,sc=z=>((1100-z)/1100);
+ fog.style.transformOrigin=L.style.transformOrigin="50% 40%";
+ fog.style.transform="translateZ("+zF+"px) scale("+sc(zF)+")";
+ L.style.transform="translateZ("+(zF-1)+"px) scale("+sc(zF-1)+")";
+ stage.style.setProperty("--fz",(zF+4)+"px");stage.style.setProperty("--fsc",sc(zF+4));
+}
+function refresh(wait){
+ const dn_=done();document.body.classList.toggle("manual",!dn_&&!solving);
+ L.classList.remove("on");clearTimeout(refresh.t);
+ refresh.t=setTimeout(()=>{const rh=ch*.3/6;for(let k=1;k<=7;k++)paint(cards[k],k,cw,rh);const fresh=dn_&&!wasDone;lights(fresh);L.classList.add("on");if(fresh)clearFog(3400);wasDone=dn_},wait==null?1100:wait);
+}
+// 正しく収まった本は一瞬光って、棚に少し沈む
+const okk=k=>cards[k]._p===tp(k)&&cards[k]._fr===tfr(k),snap=()=>[1,2,3,4,5,6,7].map(okk);
+function flash(c){c.classList.remove("ok");void c.offsetWidth;c.classList.add("ok");setBox(c,-8,false,.14);setTimeout(()=>setBox(c,0,false,.22),200);setTimeout(()=>{c.classList.remove("ok");c.firstChild.style.transition=""},1600)}
+function settleNew(was,delay){setTimeout(()=>{if(done())return;for(let k=1;k<=7;k++)if(!was[k-1]&&okk(k))flash(cards[k])},delay)}
+function autoSolve(){
+ if(solving||done())return;solving=true;document.body.classList.remove("manual");endCoach();
+ const go=()=>{
+  for(let p=0;p<7;p++){const want=tk(p);if(order[p]!==want){const c=cards[want];setBox(c,D*.4);order.splice(order.indexOf(want),1);order.splice(p,0,want);setTimeout(()=>applyPos(true),200);setTimeout(()=>setBox(c,0),650);return setTimeout(go,850)}}
+  let n=0;for(let k=1;k<=7;k++)if(cards[k]._fr!==tfr(k)){flipTo(cards[k],tfr(k),n*140);n++}
+  setTimeout(()=>{solving=false;refresh(0)},n?1500+n*140:0);
+ };
+ go();
+}
+$("mode").onclick=autoSolve;
+
+// つかむ：触れると浮く。動かせば並べ替え、動かさず離せば手に取る
+let coached=false,coachT=[],finger=null,touched=false;
+try{coached=localStorage.getItem("sinCoach")==="1"}catch(_){}
+function firstTouch(){if(touched)return;touched=true;foot.classList.add("gone");try{localStorage.setItem("sinCoach","1")}catch(_){}}
+function endCoach(){coachT.forEach(clearTimeout);coachT=[];if(finger){finger.remove();finger=null;for(let k=1;k<=7;k++){const c=cards[k];if(!(pt&&pt.c===c)){c.style.transition="";c.style.transform="";c.classList.remove("lift");setBox(c,0)}}}}
+stage.addEventListener("pointerdown",e=>{
+ if(solving||pt)return;const c=e.target.closest(".card");if(!c)return;e.preventDefault();
+ endCoach();firstTouch();
+ pt={x:e.clientX,y:e.clientY,lx:e.clientX,c,drag:false,id:e.pointerId,ox:parseFloat(c.style.left)||0,slot:c._p,was:snap()};
+ c.classList.remove("mv");c.classList.add("lift");c.style.transition="transform .16s ease";c.style.transform="translateY(-6px)";setBox(c,D*.3,false,.16);
+ try{stage.setPointerCapture(e.pointerId)}catch(_){}
+});
+stage.addEventListener("pointermove",e=>{
+ if(!pt)return;const dx=e.clientX-pt.x,dy=e.clientY-pt.y,c=pt.c;
+ if(!pt.drag){if(Math.hypot(dx,dy)<6)return;pt.drag=true;c.style.transition="none"}
+ const s=cw+G,x=Math.max(-cw*.4,Math.min(6*s+cw*.4,pt.ox+dx)),yy=Math.max(-46,Math.min(24,dy))-6,vx=e.clientX-pt.lx;pt.lx=e.clientX;
+ c.style.left=x+"px";c.style.transform="translateY("+yy+"px) rotate("+Math.max(-5,Math.min(5,vx*.5))+"deg)";
+ const cand=Math.max(0,Math.min(6,Math.round(x/s)));
+ if(cand!==pt.slot&&Math.abs(x-cand*s)<s*.38){pt.slot=cand;const rest=order.filter(k=>k!==c._k);rest.splice(cand,0,c._k);rest.forEach((k,p)=>{if(k!==c._k){const o=cards[k];o.classList.add("mv");o.style.left=(p*s)+"px"}})}
+});
+function release(cancel){
+ if(!pt)return;const p=pt,c=p.c;pt=null;
+ c.style.zIndex=15;c.style.transition="transform .25s ease,left .25s ease";c.style.transform="";c.classList.remove("lift");setTimeout(()=>{c.style.transition="";c.style.zIndex=""},320);
+ if(p.drag){
+  if(!cancel){const rest=order.filter(k=>k!==c._k);rest.splice(p.slot,0,c._k);order.splice(0,7,...rest)}
+  setBox(c,0,false,.25);applyPos(true);if(!cancel){refresh();settleNew(p.was,340)}
+ }else if(!cancel){openZ(c._k);setTimeout(()=>setBox(c,0,false,.25),250)}
+ else setBox(c,0,false,.25);
+}
+stage.addEventListener("pointerup",()=>release(false));stage.addEventListener("pointercancel",()=>release(true));
+casee.addEventListener("click",e=>{if(e.target.closest(".card"))return;clearFog()});
+
+// 揺れ：正しくない本だけ、その場でカタカタ（向き違いは少し回りかける）
+function rock(c,turn){
+ const b=c.firstChild,X=[-1,.9,-.7,.6,-.3,0],Rz=[-.3,.28,-.2,.15,-.08,0],Ry=[3,-2.5,2,-1.4,.7,0];
+ c.style.transformOrigin="50% 100%";c.style.transition="transform .07s linear";b.style.transition="transform .09s ease";
+ X.forEach((x,i)=>setTimeout(()=>{if((pt&&pt.c===c)||zk===c._k)return;
+  c.style.transform=i<5?"translateX("+x+"px) rotate("+Rz[i]+"deg)":"";
+  b.style.transform="translateZ("+(-D/2+(i<5?3:0))+"px) rotateY("+(c._R+(turn?Ry[i]:0))+"deg)";
+  if(i===5)setTimeout(()=>{c.style.transition="";c.style.transformOrigin="";b.style.transition=""},160)},40+i*75));
+}
+setInterval(()=>{
+ if(solving||pt||finger||$("zoom").classList.contains("on")||done()||document.hidden)return;
+ if(Math.random()>P.rattle)return;
+ const wr=[];for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k))wr.push([c,false]);else if(c._fr!==tfr(k))wr.push([c,true])}
+ if(!wr.length)return;const[c,t]=wr[Math.random()*wr.length|0];rock(c,t);
+},1500);
+
+// 最初の1回だけ、指の影が操作を見せる
+function coach(){
+ const c=cards[order[2]],s=cw+G;finger=document.createElement("div");finger.className="finger";stage.appendChild(finger);
+ finger.style.left=(parseFloat(c.style.left)+cw/2)+"px";finger.style.top=(ch*.42)+"px";
+ const T=(f,ms)=>coachT.push(setTimeout(f,ms)),tip=t=>{foot.textContent=t};
+ T(()=>{finger&&finger.classList.add("on");tip("つかんで、並べ替える")},300);
+ T(()=>{finger.classList.add("press");c.classList.add("lift");c.style.transition="transform .18s ease";c.style.transform="translateY(-6px)";setBox(c,D*.3,false,.18)},900);
+ T(()=>{c.style.transition="transform .8s ease";c.style.transform="translate("+(s*.75)+"px,-6px)";finger.style.transition="opacity .4s,scale .2s,translate .8s ease";finger.style.translate=(s*.75)+"px 0"},1200);
+ T(()=>{c.style.transform="translateY(-6px)";finger.style.translate="0 0"},2200);
+ T(()=>{finger.classList.remove("press");c.style.transform="";setBox(c,0,false,.2);c.classList.remove("lift")},3000);
+ T(()=>{tip("触れて離せば、手に取れる");finger.classList.add("press");c.style.transition="transform .18s ease";c.style.transform="translateY(-6px)";setBox(c,D*.3,false,.18)},3700);
+ T(()=>{finger.classList.remove("press");c.style.transform="";setBox(c,0,false,.2)},4300);
+ T(()=>{tip("霧に触れれば、少し晴れる");finger.classList.remove("on")},4900);
+ T(()=>{if(finger){finger.remove();finger=null}c.style.transition=""},5500);
+}
+
+const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0;
+function loop(ts){
+ if(!calm)requestAnimationFrame(loop);if(ts-last<40)return;last=ts;const t=ts/1000*P.speed;
+ const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;
+ fis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-9:12))+"px "+(t*(n?2:-1.5))+"px"});
+ wis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-5:6))+"px "+(t*(n?1:-.8))+"px"});
+}
+requestAnimationFrame(loop);
+if(location.hash==="#tune"){
+ const T=$("tune");T.hidden=false;
+ const defs=[["scale","霧の模様の大きさ",120,600,10],["speed","霧の速さ",0,3,.05],["clear","晴れる量",.25,.6,.01],["dense","霧の濃さ",.3,1,.02],["art","絵にかかる霧",0,.8,.02],["rattle","揺れる頻度",0,1,.05]];
+ T.innerHTML=defs.map(([k,l,a,b,s])=>'<label>'+l+' <input type="range" min="'+a+'" max="'+b+'" step="'+s+'" data-k="'+k+'" value="'+P[k]+'"><output>'+P[k]+'</output></label>').join("")+'<pre id="tj"></pre>';
+ const out=()=>{$("tj").textContent=JSON.stringify(P)};out();let tt=0;
+ T.addEventListener("input",e=>{const i=e.target;if(!i.dataset.k)return;P[i.dataset.k]=+i.value;i.nextElementSibling.textContent=i.value;try{localStorage.setItem("sinTune2",JSON.stringify(P))}catch(_){}out();
+  if(i.dataset.k==="clear"){clearTimeout(tt);tt=setTimeout(()=>{mkTex();fogMask()},120)}else if(i.dataset.k!=="rattle")fogMask()});
+}
+
+// 手に取る／戻す：画面に見えている背表紙の大きさ・位置から連続して飛ぶ
+function fit3(c,fr,Hh){const bf=book.querySelector(fr?".spv":".sps"),cf=c.querySelector(c._fr?".spv":".sps"),br=bf.getBoundingClientRect(),cr=cf.getBoundingClientRect(),k=br.height/Hh;
+ return{s:cr.height/br.height,dx:((cr.left+cr.width/2)-(br.left+br.width/2))/k,dy:((cr.top+cr.height/2)-(br.top+br.height/2))/k}}
+function openZ(k){
+ const c=cards[k];zk=k;const Hh=Math.min(innerHeight*.56,520),S=Math.max(46,Hh/8),Dz=Math.min(Hh*.7,innerWidth*.84),z=$("zoom"),tot=Hh*1.16+96;
+ z.style.setProperty("--zh",Hh+"px");z.style.setProperty("--zt",Math.max(60,(innerHeight-tot)/2+Hh*.08)+"px");
+ book.style.cssText="width:"+S+"px;height:"+Hh+"px;--s:"+S+"px;--d:"+Dz+"px;--capf:14px;--cs:"+(S*.34)+"px";
+ book.innerHTML=faces(k);paint(book,k,S,Hh*.3/6);
+ zR=c._fr?0:180;
+ book.style.transition="none";book.style.transform="rotateY("+zR+"deg)";z.classList.remove("closing");z.classList.add("on");
+ const g=fit3(c,c._fr,Hh);
+ book.style.transform="translate("+g.dx+"px,"+g.dy+"px) scale("+g.s+") rotateY("+zR+"deg)";void book.offsetWidth;
+ c.style.visibility="hidden";
+ book.style.transition="transform .6s cubic-bezier(.2,.75,.2,1)";book.style.transform="rotateY("+zR+"deg)";
+ setTimeout(()=>{if(zk===k&&!zd)book.style.transition=""},640);
+ const r0=zR;setTimeout(()=>{if(zk===k&&zR===r0&&!zd){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd)book.style.transform="rotateY("+zR+"deg)"},650)}},950);
+}
+function closeZ(){
+ const z=$("zoom");if(!z.classList.contains("on")||!zk||z.classList.contains("closing"))return;const k=zk,c=cards[k];
+ const a=((zR%360)+360)%360,fr=a===0||a===270,base=fr?0:180,zT=Math.round((zR-base)/360)*360+base;
+ const Hh=parseFloat(book.style.height)||400;
+ book.style.transition="none";book.style.transform="rotateY("+zT+"deg)";
+ const g=fit3(c,fr,Hh);
+ book.style.transform="rotateY("+zR+"deg)";void book.offsetWidth;z.classList.add("closing");
+ book.style.transition="transform .55s cubic-bezier(.4,0,.2,1)";book.style.transform="translate("+g.dx+"px,"+g.dy+"px) scale("+g.s+") rotateY("+zT+"deg)";
+ const was=snap(),changed=c._fr!==fr;
+ setTimeout(()=>{c._fr=fr;c._R=fr?0:180;setBox(c,0,true);c.style.visibility="";zk=0;z.classList.remove("on");setTimeout(()=>{z.classList.remove("closing");book.style.transition=""},360);
+  if(changed){applyPos(false);refresh(300);settleNew(was,150)}},570);
+}
+book.addEventListener("pointerdown",e=>{zd={x:e.clientX,y:e.clientY,r:zR};try{book.setPointerCapture(e.pointerId)}catch(_){}book.style.transition="none"});
+book.addEventListener("pointermove",e=>{if(zd)book.style.transform="rotateY("+(zd.r+(e.clientX-zd.x)*.45)+"deg)"});
+book.addEventListener("pointerup",e=>{
+ if(!zd)return;const dx=e.clientX-zd.x,dy=e.clientY-zd.y;book.style.transition="";
+ if(dy>70&&dy>Math.abs(dx)*1.5){zd=null;book.style.transform="rotateY("+zR+"deg)";closeZ();return}
+ let st=Math.round(dx*.45/90);if(st===0&&Math.abs(dx)>22)st=dx>0?1:-1;
+ if(Math.abs(dx)<6&&Math.abs(dy)<6)st=-1;
+ zR=zd.r+st*90;book.style.transform="rotateY("+zR+"deg)";zd=null;
+});
+book.addEventListener("pointercancel",()=>{if(zd){book.style.transition="";book.style.transform="rotateY("+zR+"deg)";zd=null}});
+$("zc").onclick=closeZ;$("zoom").onclick=e=>{if(e.target.id==="zoom")closeZ()};
+addEventListener("keydown",e=>{if(e.key==="Escape")closeZ();else if($("zoom").classList.contains("on")){if(e.key==="ArrowLeft"){zR-=90;book.style.transform="rotateY("+zR+"deg)"}if(e.key==="ArrowRight"){zR+=90;book.style.transform="rotateY("+zR+"deg)"}}});
+addEventListener("resize",()=>layout(true));
+
+do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done());
+layout(true);refresh(0);
+foot.textContent="つかんで並べ替え　・　触れて離して手に取る";
+if(!coached)setTimeout(coach,900);
+}
+</script></body></html>
