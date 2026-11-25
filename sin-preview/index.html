@@ -424,25 +424,26 @@ function endCoach(){coachT.forEach(clearTimeout);coachT=[];if(finger){finger.rem
 stage.addEventListener("pointerdown",e=>{
  if(solving||pt)return;const c=e.target.closest(".card");if(!c)return;e.preventDefault();
  endCoach();firstTouch();
- pt={x:e.clientX,y:e.clientY,lx:e.clientX,c,drag:false,id:e.pointerId,ox:parseFloat(c.style.left)||0,slot:c._p,was:snap()};
+ pt={x:e.clientX,y:e.clientY,lx:e.clientX,c,drag:false,t0:performance.now(),id:e.pointerId,ox:parseFloat(c.style.left)||0,slot:c._p,was:snap()};
  c.classList.remove("mv");c.classList.add("lift");c.style.transition="transform .16s ease";c.style.transform="translateY(-6px)";setBox(c,D*.3,false,.16);
  try{stage.setPointerCapture(e.pointerId)}catch(_){}
 });
 stage.addEventListener("pointermove",e=>{
  if(!pt)return;const dx=e.clientX-pt.x,dy=e.clientY-pt.y,c=pt.c;
- if(!pt.drag){if(Math.hypot(dx,dy)<6)return;pt.drag=true;c.style.transition="none"}
+ if(!pt.drag){if(Math.hypot(dx,dy)<(performance.now()-pt.t0>TAP_MS?3:6))return;pt.drag=true;c.style.transition="none"}
  const s=cw+G,x=Math.max(-cw*.4,Math.min(6*s+cw*.4,pt.ox+dx)),yy=Math.max(-46,Math.min(24,dy))-6,vx=e.clientX-pt.lx;pt.lx=e.clientX;
  c.style.left=x+"px";c.style.transform="translateY("+yy+"px) rotate("+Math.max(-5,Math.min(5,vx*.5))+"deg)";
  const cand=Math.max(0,Math.min(6,Math.round(x/s)));
  if(cand!==pt.slot&&Math.abs(x-cand*s)<s*.38){pt.slot=cand;const rest=order.filter(k=>k!==c._k);rest.splice(cand,0,c._k);rest.forEach((k,p)=>{if(k!==c._k){const o=cards[k];o.classList.add("mv");o.style.left=(p*s)+"px"}})}
 });
+const TAP_MS=260;
 function release(cancel){
  if(!pt)return;const p=pt,c=p.c;pt=null;
  c.style.zIndex=15;c.style.transition="transform .25s ease,left .25s ease";c.style.transform="";c.classList.remove("lift");setTimeout(()=>{c.style.transition="";c.style.zIndex=""},320);
  if(p.drag){
   if(!cancel){const rest=order.filter(k=>k!==c._k);rest.splice(p.slot,0,c._k);order.splice(0,7,...rest)}
   setBox(c,0,false,.25);applyPos(true);if(!cancel){refresh();settleNew(p.was,COIN_DELAY)}
- }else if(!cancel){openZ(c._k);setTimeout(()=>setBox(c,0,false,.25),250)}
+ }else if(!cancel&&performance.now()-p.t0<=TAP_MS){openZ(c._k);setTimeout(()=>setBox(c,0,false,.25),250)}
  else setBox(c,0,false,.25);
 }
 stage.addEventListener("pointerup",()=>release(false));stage.addEventListener("pointercancel",()=>release(true));
