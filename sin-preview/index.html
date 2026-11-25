@@ -365,7 +365,10 @@ function layout(full){
 }
 // 正しい位置と向きにある本だけ、コインが灯り続ける（向き違いは灯さない）
 const coinOk=k=>okk(k);
-function coins(){for(let k=1;k<=7;k++)cards[k].classList.toggle("okc",coinOk(k))}
+// 外れたらすぐ消え、収まったらワンテンポ置いて灯る
+const COIN_DELAY=900;
+function coins(){clearTimeout(coins.t);for(let k=1;k<=7;k++)if(!coinOk(k))cards[k].classList.remove("okc");
+ coins.t=setTimeout(()=>{for(let k=1;k<=7;k++)if(coinOk(k))cards[k].classList.add("okc")},coins.first?COIN_DELAY:0);coins.first=1}
 function refresh(wait){
  const dn_=done();coins();document.body.classList.toggle("manual",!dn_&&!solving);
  L.classList.remove("on");clearTimeout(refresh.t);
@@ -411,7 +414,7 @@ function release(cancel){
  c.style.zIndex=15;c.style.transition="transform .25s ease,left .25s ease";c.style.transform="";c.classList.remove("lift");setTimeout(()=>{c.style.transition="";c.style.zIndex=""},320);
  if(p.drag){
   if(!cancel){const rest=order.filter(k=>k!==c._k);rest.splice(p.slot,0,c._k);order.splice(0,7,...rest)}
-  setBox(c,0,false,.25);applyPos(true);if(!cancel){refresh();settleNew(p.was,340)}
+  setBox(c,0,false,.25);applyPos(true);if(!cancel){refresh();settleNew(p.was,COIN_DELAY)}
  }else if(!cancel){openZ(c._k);setTimeout(()=>setBox(c,0,false,.25),250)}
  else setBox(c,0,false,.25);
 }
@@ -494,7 +497,7 @@ function closeZ(){
  book.style.transition="transform .55s cubic-bezier(.4,0,.2,1)";book.style.transform="translate("+g.dx+"px,"+g.dy+"px) scale("+g.s+") rotateY("+zT+"deg)";
  const was=snap(),changed=c._fr!==fr;
  setTimeout(()=>{c._fr=fr;c._R=fr?0:180;setBox(c,0,true);c.style.visibility="";zk=0;z.classList.remove("on");setTimeout(()=>{z.classList.remove("closing");book.style.transition=""},360);
-  if(changed){applyPos(false);refresh(300);settleNew(was,150)}},570);
+  if(changed){applyPos(false);refresh(300);settleNew(was,COIN_DELAY)}},570);
 }
 book.addEventListener("pointerdown",e=>{zd={x:e.clientX,y:e.clientY,r:zR};try{book.setPointerCapture(e.pointerId)}catch(_){}book.style.transition="none"});
 book.addEventListener("pointermove",e=>{if(zd)book.style.transform="rotateY("+(zd.r+(e.clientX-zd.x)*.45)+"deg)"});
