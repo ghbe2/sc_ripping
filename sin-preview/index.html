@@ -312,7 +312,8 @@ for(let k=1;k<=7;k++){
  stage.appendChild(c);cards[k]=c;
 }
 // 今月の並び（日曜始まりの月だけ、全部しゅがけ側の並びも正解）
-const done=()=>{let a=true,b=fm===0;for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k)||c._fr!==tfr(k))a=false;if(c._p!==k-1||c._fr)b=false}return a||b};
+// 正解は1つだけ（日曜始まりの月も、全部しゅがけ側の並びは正解にしない）
+const done=()=>{for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k)||c._fr!==tfr(k))return false}return true};
 
 const GC=["#1d1519","#15191c","#22180f","#1b1120","#131313","#26161b","#141a15","#1f1d16"];
 function ghosts(){
