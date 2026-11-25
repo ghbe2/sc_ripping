@@ -13,8 +13,8 @@
    LAYOUT: 書庫の壁（画面外まで続く棚）→惑星記号の曜日→7冊→棚板 */
 :root{--gold:#c9a861;--gold-hi:#ecd9a0;--serif:"Cormorant Garamond","Times New Roman",serif;--mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;--sym:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2",serif}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:#17131a}
-body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 34px;overflow-x:hidden;-webkit-user-select:none;user-select:none;background:radial-gradient(90% 60% at 50% 0%,#2a2128 0%,#17131a 70%)}
+html,body{min-height:100%;background:#17131a;overscroll-behavior-y:none}
+body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 calc(140px + env(safe-area-inset-bottom));overflow-x:hidden;-webkit-user-select:none;user-select:none;background:radial-gradient(90% 60% at 50% 0%,#2a2128 0%,#17131a 70%)}
 body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background:radial-gradient(50% 35% at 20% 85%,rgba(190,182,204,.10),transparent 70%),radial-gradient(45% 30% at 80% 25%,rgba(190,182,204,.07),transparent 70%);animation:drift 45s ease-in-out infinite alternate}
 @keyframes drift{0%{transform:translate3d(-12%,1%,0)}100%{transform:translate3d(12%,-2%,0)}}
 
@@ -171,7 +171,10 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 .finger.press{scale:.8}
 
 /* 文字・札 */
-.ctl2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.ctl2{position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px;padding:56px 0}
+.ctl2 .zbtn{opacity:.72}
+.ctl2::after{content:"";position:absolute;inset:-40px -30vw;pointer-events:none;z-index:2;background:var(--ws) 0 0/170px repeat,var(--ws) 0 0/110px repeat;opacity:.2;filter:blur(3px) brightness(.8);-webkit-mask-image:radial-gradient(60% 50% at 50% 50%,#000 30%,transparent 100%);mask-image:radial-gradient(60% 50% at 50% 50%,#000 30%,transparent 100%);animation:ctlfog 26s linear infinite}
+@keyframes ctlfog{to{background-position:170px 12px,-110px -8px}}
 body:not(.manual) .mon{display:none}
 .foot{margin-top:14px;text-align:center;white-space:nowrap;min-height:1.8em;transition:opacity .8s}
 .foot.gone{opacity:0}
@@ -206,8 +209,8 @@ body:not(.manual) .mon{display:none}
  <div class="stage" id="stage"><div class="fog" id="fog"><i></i><i></i><i></i></div><div class="lights" id="lights"></div></div>
  <div class="board"></div>
 </div>
-<div class="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button></div>
 <p class="foot" id="foot"></p>
+<div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button></div>
 <div class="tune" id="tune" hidden></div>
 <div class="zoom" id="zoom"><div class="zstage"><div class="book3d" id="book"></div></div><p class="zhint">左右に回す　・　下へ払えば棚へ</p><div class="zrow"><button class="zbtn" id="zc">棚に戻す</button></div></div>
 <script>
@@ -349,8 +352,11 @@ function fogMask(){
  wis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(2+n))+"px"});
 }
 function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;c.classList.toggle("mv",!!anim);c.style.left=(p*(cw+G))+"px";c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
+let H0=innerHeight,W0=innerWidth;
+// ボタンは最初の画面の外（下へスクロールすると霧の中から現れる）
+function sinkCtl(){const c=$("ctl2");c.style.marginTop="12px";const top=c.getBoundingClientRect().top+scrollY;c.style.marginTop=Math.max(12,H0-top+12)+"px"}
 function layout(full){
- const W=stage.clientWidth;cw=(W-G*6)/7;ch=Math.min(cw*8,innerHeight*.56);D=cw*3.4;
+ const W=stage.clientWidth;cw=(W-G*6)/7;ch=Math.min(cw*8,H0*.56);D=cw*3.4;
  stage.style.height=ch+"px";casee.style.setProperty("--ch",ch+"px");
  for(let k=1;k<=7;k++){const c=cards[k];c.style.width=cw+"px";c.style.height=ch+"px";c.style.setProperty("--s",cw+"px");c.style.setProperty("--d",D+"px")}
  applyPos(false);
@@ -514,10 +520,10 @@ book.addEventListener("pointerup",e=>{
 book.addEventListener("pointercancel",()=>{if(zd){book.style.transition="";book.style.transform="rotateY("+zR+"deg)";zd=null}});
 $("zc").onclick=closeZ;$("zoom").onclick=e=>{if(e.target.id==="zoom")closeZ()};
 addEventListener("keydown",e=>{if(e.key==="Escape")closeZ();else if($("zoom").classList.contains("on")){if(e.key==="ArrowLeft"){zR-=90;book.style.transform="rotateY("+zR+"deg)"}if(e.key==="ArrowRight"){zR+=90;book.style.transform="rotateY("+zR+"deg)"}}});
-addEventListener("resize",()=>layout(true));
+addEventListener("resize",()=>{if(innerWidth===W0)return;W0=innerWidth;H0=innerHeight;layout(true);sinkCtl()});
 
 do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done());
-layout(true);refresh(0);
+layout(true);refresh(0);sinkCtl();
 foot.textContent="つかんで並べ替え　・　触れて離して手に取る";
 if(!coached)setTimeout(coach,900);
 }
