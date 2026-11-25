@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>SIN CALENDAR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
@@ -13,7 +13,8 @@
    LAYOUT: 書庫の壁（画面外まで続く棚）→惑星記号の曜日→7冊→棚板 */
 :root{--gold:#c9a861;--gold-hi:#ecd9a0;--serif:"Cormorant Garamond","Times New Roman",serif;--mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;--sym:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2",serif}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:#0c090b;overscroll-behavior-y:none}
+html,body{min-height:100%;background:#0c090b;overscroll-behavior:none;overflow-x:hidden;overflow-x:clip;touch-action:pan-y}
+body{position:relative}
 body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 calc(140px + env(safe-area-inset-bottom));overflow-x:hidden;-webkit-user-select:none;user-select:none;background:#0c090b}
 body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background:radial-gradient(50% 35% at 20% 85%,rgba(190,182,204,.10),transparent 70%),radial-gradient(45% 30% at 80% 25%,rgba(190,182,204,.07),transparent 70%);animation:drift 45s ease-in-out infinite alternate}
 @keyframes drift{0%{transform:translate3d(-12%,1%,0)}100%{transform:translate3d(12%,-2%,0)}}
@@ -175,10 +176,10 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 .ctl2 .zbtn{pointer-events:none;animation:btnglow 3.2s ease-in-out infinite alternate}
 .ctl2.open .zbtn{pointer-events:auto}
 @keyframes btnglow{from{box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.35),0 0 18px 4px rgba(255,210,140,.28)}to{box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.35),0 0 30px 9px rgba(255,210,140,.5)}}
-.fog.cf{inset:-10px -24px;z-index:3}
-.fog.cf.open{opacity:0;transition:opacity .9s ease}
+.fog.lf{inset:auto 0 0 0;z-index:15}
+.fog.lf.open{opacity:0;transition:opacity .9s ease}
 body:not(.manual) .mon{display:none}
-.foot{margin-top:14px;text-align:center;white-space:nowrap;min-height:1.8em;transition:opacity .8s}
+.foot{position:relative;z-index:16;margin-top:14px;text-align:center;white-space:nowrap;min-height:1.8em;transition:opacity .8s}
 .foot.gone{opacity:0}
 .zhint,.foot{font-family:var(--mincho);font-size:11px;letter-spacing:.32em;color:rgba(214,196,150,.58);text-shadow:0 0 10px rgba(0,0,0,.95);line-height:2}
 .foot{letter-spacing:.16em;font-size:clamp(10px,2.9vw,11px)}
@@ -212,7 +213,8 @@ body:not(.manual) .mon{display:none}
  <div class="board"></div>
 </div>
 <p class="foot" id="foot"></p>
-<div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button><div class="fog cf" id="cfog"><i></i><i></i></div></div>
+<div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button></div>
+<div class="fog lf" id="cfog"><i></i><i></i></div>
 <div class="tune" id="tune" hidden></div>
 <div class="zoom" id="zoom"><div class="zstage"><div class="book3d" id="book"></div></div><p class="zhint">左右に回す　・　下へ払えば棚へ</p><div class="zrow"><button class="zbtn" id="zc">棚に戻す</button></div></div>
 <script>
@@ -351,17 +353,19 @@ function fogMask(){
  st.webkitMaskImage=img;st.maskImage=img;st.webkitMaskSize=sz;st.maskSize=sz;st.webkitMaskRepeat="repeat,repeat,no-repeat,no-repeat";st.maskRepeat="repeat,repeat,no-repeat,no-repeat";
  st.webkitMaskComposite="source-in,source-in,source-in";st.maskComposite="intersect,intersect,intersect";
  // ボタンの霧（同じ模様、縁は楕円でなくノイズで消える）
- const cs=cfog.style,cimg="url("+M1+"),url("+M2+"),radial-gradient(closest-side,#000 45%,transparent)";
+ const cs=cfog.style,cimg="url("+M1+"),url("+M2+"),linear-gradient(180deg,transparent 0,rgba(0,0,0,.6) 30px,#000 80px,#000 100%)";
  cs.webkitMaskImage=cimg;cs.maskImage=cimg;cs.webkitMaskSize=sz.split(",").slice(0,2).join(",")+",100% 100%";cs.maskSize=cs.webkitMaskSize;cs.webkitMaskRepeat="repeat,repeat,no-repeat";cs.maskRepeat=cs.webkitMaskRepeat;
- cs.webkitMaskComposite="source-in,source-in";cs.maskComposite="intersect,intersect";cfog.style.setProperty("--dense",Math.min(.85,P.dense+.15));
+ cs.webkitMaskComposite="source-in,source-in";cs.maskComposite="intersect,intersect";cfog.style.setProperty("--dense",P.dense);
  fog.style.setProperty("--dense",P.dense);
  fis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(1.3+n%3*.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(2+n))+"px"});
 }
 function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;c.classList.toggle("mv",!!anim);c.style.left=(p*(cw+G))+"px";c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
 let H0=innerHeight,W0=innerWidth;
+["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 // ボタンは最初の画面の外（下へスクロールすると霧の中から現れる）
-function sinkCtl(){const c=$("ctl2");c.style.marginTop="12px";const top=c.getBoundingClientRect().top+scrollY;c.style.marginTop=Math.max(12,H0-top+12)+"px"}
+function sinkCtl(){const c=$("ctl2");c.style.marginTop="12px";const top=c.getBoundingClientRect().top+scrollY;c.style.marginTop=Math.max(12,H0-top+12)+"px";
+ const bd=casee.querySelector(".board").getBoundingClientRect();cfog.style.top=Math.round(bd.bottom+scrollY-10)+"px"}
 function layout(full){
  const W=stage.clientWidth;cw=(W-G*6)/7;ch=Math.min(cw*8,H0*.56);D=cw*3.4;
  stage.style.height=ch+"px";casee.style.setProperty("--ch",ch+"px");
@@ -404,8 +408,9 @@ function autoSolve(){
  go();
 }
 {const ctl=$("ctl2");let rt=0;
- ctl.addEventListener("click",e=>{if(ctl.classList.contains("open"))return;e.preventDefault();e.stopPropagation();ctl.classList.add("open");cfog.classList.add("open");
-  clearTimeout(rt);rt=setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open")},6000)},true);
+ const openLow=()=>{ctl.classList.add("open");cfog.classList.add("open");clearTimeout(rt);rt=setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open")},6000)};
+ ctl.addEventListener("click",e=>{if(ctl.classList.contains("open"))return;e.preventDefault();e.stopPropagation();openLow()},true);
+ document.addEventListener("click",e=>{if(e.target.closest(".card,.zoom,.tune"))return;if(e.pageY>=parseFloat(cfog.style.top||1e9))openLow()});
  $("mode").onclick=()=>{if(solving||done())return;clearTimeout(rt);
   const t0=performance.now();scrollTo({top:0,behavior:"smooth"});
   const wait=()=>{if(scrollY>1&&performance.now()-t0<1800)return requestAnimationFrame(wait);setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open");autoSolve()},450)};
