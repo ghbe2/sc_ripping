@@ -363,8 +363,8 @@ function layout(full){
  L.style.transform="translateZ("+(zF-1)+"px) scale("+sc(zF-1)+")";
  stage.style.setProperty("--fz",(zF+4)+"px");stage.style.setProperty("--fsc",sc(zF+4));
 }
-// 正しい位置と向きにある本は、コインが灯り続ける（日曜始まりの月は全部しゅがけ側の並びも可）
-const coinOk=k=>okk(k)||(fm===0&&cards[k]._p===k-1&&!cards[k]._fr);
+// 正しい位置と向きにある本だけ、コインが灯り続ける（向き違いは灯さない）
+const coinOk=k=>okk(k);
 function coins(){for(let k=1;k<=7;k++)cards[k].classList.toggle("okc",coinOk(k))}
 function refresh(wait){
  const dn_=done();coins();document.body.classList.toggle("manual",!dn_&&!solving);
