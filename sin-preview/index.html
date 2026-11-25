@@ -376,7 +376,7 @@ function refresh(wait){
 }
 // 正しく収まった本は一瞬光って、棚に少し沈む
 const okk=k=>cards[k]._p===tp(k)&&cards[k]._fr===tfr(k),snap=()=>[1,2,3,4,5,6,7].map(okk);
-function flash(c){c.classList.remove("ok");void c.offsetWidth;c.classList.add("ok");setBox(c,-8,false,.14);setTimeout(()=>setBox(c,0,false,.22),200);setTimeout(()=>{c.classList.remove("ok");c.firstChild.style.transition=""},1600)}
+function flash(c){c.classList.remove("ok");void c.offsetWidth;c.classList.add("ok");setTimeout(()=>c.classList.remove("ok"),1600)}
 function settleNew(was,delay){setTimeout(()=>{if(done())return;for(let k=1;k<=7;k++)if(!was[k-1]&&okk(k))flash(cards[k])},delay)}
 function autoSolve(){
  if(solving||done())return;solving=true;document.body.classList.remove("manual");endCoach();
