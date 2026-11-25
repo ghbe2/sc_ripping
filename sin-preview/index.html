@@ -32,6 +32,11 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 .gh{position:relative;width:100%;overflow:hidden;z-index:1;pointer-events:none}
 /* 題の真鍮プレート（上の棚板の前縁に留める） */
 .plw{position:relative;height:0;z-index:9}
+/* ヒント：今日の巻の行き先。列は月明かりに照らされた星が示す */
+.hint{position:relative;z-index:8;margin:16px auto 0;text-align:center;font-family:var(--mincho);font-size:clamp(11px,3.3vw,14px);letter-spacing:.14em;color:#cfc3ad;text-shadow:0 1px 3px #000;line-height:1.9}
+.hint ruby rt{font-size:.5em;letter-spacing:.1em;color:#a89c88}
+.wd.moon b{color:#e4ecff!important;text-shadow:0 0 5px rgba(200,218,255,.95),0 0 14px rgba(160,190,255,.6);animation:moonb 4s ease-in-out infinite alternate}
+@keyframes moonb{from{text-shadow:0 0 5px rgba(200,218,255,.95),0 0 14px rgba(160,190,255,.6)}to{text-shadow:0 0 3px rgba(200,218,255,.7),0 0 8px rgba(160,190,255,.35)}}
 .plate{position:absolute;left:50%;top:-18px;transform:translateX(-50%);padding:4px 16px 3px;white-space:nowrap;font-family:var(--serif);font-weight:600;font-size:clamp(11px,3.2vw,15px);letter-spacing:.28em;text-indent:.28em;color:#3a2a12;text-shadow:0 1px 0 rgba(255,240,200,.45),0 -1px 0 rgba(0,0,0,.35);background:linear-gradient(180deg,#e6cf8e 0,#b8954f 38%,#8c6a2e 62%,#a98745 100%);border-radius:1px;box-shadow:0 0 0 1px #5a4219,inset 0 1px 0 rgba(255,245,210,.6),inset 0 -1px 0 rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.6)}
 .plate::before,.plate::after{content:"";position:absolute;top:50%;width:3px;height:3px;margin-top:-1.5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f1dfa8,#5e4519);box-shadow:0 0 0 .5px rgba(0,0,0,.4)}
 .plate::before{left:5px}.plate::after{right:5px}
@@ -77,8 +82,8 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 @keyframes obdrift{to{background-position:90px 14px,-150px 9px,0 0}}
 .coin{position:absolute;left:50%;top:calc(70% - var(--cs)*.62);transform:translate(-50%,-50%);z-index:7;width:var(--cs);height:var(--cs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);line-height:1;color:#3a2a12;font-family:var(--sym);background:radial-gradient(circle at 35% 30%,#f6e6b4,#c9a861 55%,#7d6435);box-shadow:0 1px 3px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,240,200,.45);filter:grayscale(1) brightness(.5);opacity:.55}
 .rim{position:absolute;inset:0;border:1px solid rgba(236,217,160,.75);border-radius:4px;opacity:0;pointer-events:none;z-index:8;box-shadow:inset 0 0 14px rgba(236,217,160,.45)}
-.card.ok .rim{animation:okflash 1.5s ease}
-@keyframes okflash{0%{opacity:0}22%{opacity:.85}100%{opacity:0}}
+.card.ok .coin{animation:coinflash 1.6s ease}
+@keyframes coinflash{0%{filter:grayscale(1) brightness(.5);opacity:.55}20%{filter:grayscale(0) brightness(1.3);opacity:1;box-shadow:0 0 10px 3px rgba(255,222,150,.85),0 0 22px 6px rgba(255,205,120,.45),inset 0 0 0 1px rgba(255,240,200,.8)}100%{filter:grayscale(1) brightness(.5);opacity:.55}}
 
 /* ヴィランズ＝敵：古い布張り＋金箔 */
 .v{background:radial-gradient(rgba(255,255,255,.04) .7px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,#1b1519,#0d0a0d)}
@@ -281,11 +286,14 @@ mkTex();
 const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.querySelector(".case"),foot=$("foot"),cards={};
 const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
 const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
-casee.insertBefore(bdUp,$("wds"));const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));casee.insertBefore(up,bdUp);
+casee.insertBefore(bdUp,$("wds"));const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));
+// 今日の巻（今日の日付を持つ本）が向けるべき顔の名で呼ぶ。ヴィランズ側は許可が出るまで罪名
+{const BEAST=["","獅子","狐","犬","猿","山羊","鰐","熊"],tk0=(td-1)%7+1,nm=tfr(tk0)?SN[tk0].sin:BEAST[tk0];
+ const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を<ruby>置座<rt>おきくら</rt></ruby>へ導く";casee.insertBefore(hn,$("wds"))}casee.insertBefore(up,bdUp);
 const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
 const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
 const fis=[...fog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
-$("wds").innerHTML=["☉","☾","♂","☿","♃","♀","♄"].map((g,i)=>'<div class="wd'+(i==0?" sun":i==6?" sat":"")+'"><b>'+g+V+'</b></div>').join("");
+$("wds").innerHTML=["☉","☾","♂","☿","♃","♀","♄"].map((g,i)=>'<div class="wd'+(i==0?" sun":i==6?" sat":"")+(i===now.getDay()?" moon":"")+'"><b>'+g+V+'</b></div>').join("");
 
 function clearFog(ms){fog.classList.add("clear");clearTimeout(clearFog.t);clearFog.t=setTimeout(()=>fog.classList.remove("clear"),ms||2600)}
 function setBox(c,pull,instant,fast){const b=c.firstChild;if(instant)b.style.transition="none";else b.style.transition=fast?"transform "+fast+"s ease":"";b.style.transform="translateZ("+(-D/2+pull)+"px) rotateY("+c._R+"deg)";if(instant){void b.offsetWidth;b.style.transition=""}}
