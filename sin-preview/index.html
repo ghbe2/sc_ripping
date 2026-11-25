@@ -82,8 +82,10 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 @keyframes obdrift{to{background-position:90px 14px,-150px 9px,0 0}}
 .coin{position:absolute;left:50%;top:calc(70% - var(--cs)*.62);transform:translate(-50%,-50%);z-index:7;width:var(--cs);height:var(--cs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);line-height:1;color:#3a2a12;font-family:var(--sym);background:radial-gradient(circle at 35% 30%,#f6e6b4,#c9a861 55%,#7d6435);box-shadow:0 1px 3px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,240,200,.45);filter:grayscale(1) brightness(.5);opacity:.55}
 .rim{position:absolute;inset:0;border:1px solid rgba(236,217,160,.75);border-radius:4px;opacity:0;pointer-events:none;z-index:8;box-shadow:inset 0 0 14px rgba(236,217,160,.45)}
-.card.ok .coin{animation:coinflash 1.6s ease}
-@keyframes coinflash{0%{filter:grayscale(1) brightness(.5);opacity:.55}20%{filter:grayscale(0) brightness(1.3);opacity:1;box-shadow:0 0 10px 3px rgba(255,222,150,.85),0 0 22px 6px rgba(255,205,120,.45),inset 0 0 0 1px rgba(255,240,200,.8)}100%{filter:grayscale(1) brightness(.5);opacity:.55}}
+.card .spv .coin,.card .sps .coin{transition:filter .5s ease,opacity .5s ease,box-shadow .5s ease}
+.card.okc .coin{filter:grayscale(0) brightness(1.08);opacity:1;box-shadow:0 0 7px 2px rgba(255,214,140,.55),0 0 16px 4px rgba(255,200,110,.22),inset 0 0 0 1px rgba(255,240,200,.7)}
+.card.ok .coin{animation:coinflash 1.2s ease}
+@keyframes coinflash{0%{filter:grayscale(1) brightness(.5);opacity:.55}20%{filter:grayscale(0) brightness(1.3);opacity:1;box-shadow:0 0 10px 3px rgba(255,222,150,.85),0 0 22px 6px rgba(255,205,120,.45),inset 0 0 0 1px rgba(255,240,200,.8)}100%{filter:grayscale(0) brightness(1.08);opacity:1;box-shadow:0 0 7px 2px rgba(255,214,140,.55),0 0 16px 4px rgba(255,200,110,.22),inset 0 0 0 1px rgba(255,240,200,.7)}}
 
 /* ヴィランズ＝敵：古い布張り＋金箔 */
 .v{background:radial-gradient(rgba(255,255,255,.04) .7px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,#1b1519,#0d0a0d)}
@@ -287,8 +289,8 @@ const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.
 const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
 const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
 casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));
-// 今日の巻（今日の日付を持つ本）が向けるべき顔の名で呼ぶ。ヴィランズ側は許可が出るまで罪名
-{const BEAST=["","獅子","狐","犬","猿","山羊","鰐","熊"],tk0=(td-1)%7+1,nm=tfr(tk0)?SN[tk0].sin:BEAST[tk0];
+// 今日の巻（今日の日付を持つ本）が向けるべき顔の象徴で呼ぶ。ヴィランズ側＝聖遺物、しゅがけ側＝獣
+{const BEAST=["","獅子","狐","犬","猿","山羊","鰐","熊"],RELIC=["","王笏","宝砲","割鏡","蠍","香","大蛇","紡錘"],tk0=(td-1)%7+1,nm=(tfr(tk0)?RELIC:BEAST)[tk0];
  const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を置座へ導く";const hw=document.createElement("div");hw.className="hiw";hw.appendChild(hn);casee.insertBefore(hw,bdUp)}
 const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
 const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
@@ -361,8 +363,11 @@ function layout(full){
  L.style.transform="translateZ("+(zF-1)+"px) scale("+sc(zF-1)+")";
  stage.style.setProperty("--fz",(zF+4)+"px");stage.style.setProperty("--fsc",sc(zF+4));
 }
+// 正しい位置と向きにある本は、コインが灯り続ける（日曜始まりの月は全部しゅがけ側の並びも可）
+const coinOk=k=>okk(k)||(fm===0&&cards[k]._p===k-1&&!cards[k]._fr);
+function coins(){for(let k=1;k<=7;k++)cards[k].classList.toggle("okc",coinOk(k))}
 function refresh(wait){
- const dn_=done();document.body.classList.toggle("manual",!dn_&&!solving);
+ const dn_=done();coins();document.body.classList.toggle("manual",!dn_&&!solving);
  L.classList.remove("on");clearTimeout(refresh.t);
  refresh.t=setTimeout(()=>{const rh=ch*.3/6;for(let k=1;k<=7;k++)paint(cards[k],k,cw,rh);const fresh=dn_&&!wasDone;lights(fresh);L.classList.add("on");if(fresh)clearFog(3400);wasDone=dn_},wait==null?1100:wait);
 }
