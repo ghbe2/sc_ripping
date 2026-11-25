@@ -13,8 +13,8 @@
    LAYOUT: 書庫の壁（画面外まで続く棚）→惑星記号の曜日→7冊→棚板 */
 :root{--gold:#c9a861;--gold-hi:#ecd9a0;--serif:"Cormorant Garamond","Times New Roman",serif;--mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;--sym:"Apple Symbols","Segoe UI Symbol","Noto Sans Symbols 2",serif}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:#17131a;overscroll-behavior-y:none}
-body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 calc(140px + env(safe-area-inset-bottom));overflow-x:hidden;-webkit-user-select:none;user-select:none;background:radial-gradient(90% 60% at 50% 0%,#2a2128 0%,#17131a 70%)}
+html,body{min-height:100%;background:#0c090b;overscroll-behavior-y:none}
+body{color:#e8dfe3;font-family:var(--mincho);display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 calc(140px + env(safe-area-inset-bottom));overflow-x:hidden;-webkit-user-select:none;user-select:none;background:#0c090b}
 body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background:radial-gradient(50% 35% at 20% 85%,rgba(190,182,204,.10),transparent 70%),radial-gradient(45% 30% at 80% 25%,rgba(190,182,204,.07),transparent 70%);animation:drift 45s ease-in-out infinite alternate}
 @keyframes drift{0%{transform:translate3d(-12%,1%,0)}100%{transform:translate3d(12%,-2%,0)}}
 
@@ -172,9 +172,11 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 
 /* 文字・札 */
 .ctl2{position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px;padding:56px 0}
-.ctl2 .zbtn{opacity:.72}
-.ctl2::after{content:"";position:absolute;inset:-40px -30vw;pointer-events:none;z-index:2;background:var(--ws) 0 0/170px repeat,var(--ws) 0 0/110px repeat;opacity:.2;filter:blur(3px) brightness(.8);-webkit-mask-image:radial-gradient(60% 50% at 50% 50%,#000 30%,transparent 100%);mask-image:radial-gradient(60% 50% at 50% 50%,#000 30%,transparent 100%);animation:ctlfog 26s linear infinite}
-@keyframes ctlfog{to{background-position:170px 12px,-110px -8px}}
+.ctl2 .zbtn{pointer-events:none;animation:btnglow 3.2s ease-in-out infinite alternate}
+.ctl2.open .zbtn{pointer-events:auto}
+@keyframes btnglow{from{box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.35),0 0 18px 4px rgba(255,210,140,.28)}to{box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.35),0 0 30px 9px rgba(255,210,140,.5)}}
+.fog.cf{inset:-10px -24px;z-index:3}
+.fog.cf.open{opacity:0;transition:opacity .9s ease}
 body:not(.manual) .mon{display:none}
 .foot{margin-top:14px;text-align:center;white-space:nowrap;min-height:1.8em;transition:opacity .8s}
 .foot.gone{opacity:0}
@@ -210,7 +212,7 @@ body:not(.manual) .mon{display:none}
  <div class="board"></div>
 </div>
 <p class="foot" id="foot"></p>
-<div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button></div>
+<div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">おまかせで並べる</button><div class="fog cf" id="cfog"><i></i><i></i></div></div>
 <div class="tune" id="tune" hidden></div>
 <div class="zoom" id="zoom"><div class="zstage"><div class="book3d" id="book"></div></div><p class="zhint">左右に回す　・　下へ払えば棚へ</p><div class="zrow"><button class="zbtn" id="zc">棚に戻す</button></div></div>
 <script>
@@ -299,7 +301,7 @@ casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);const plate=docume
  const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を置座へ導く";const hw=document.createElement("div");hw.className="hiw";hw.appendChild(hn);casee.insertBefore(hw,bdUp)}
 const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
 const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
-const fis=[...fog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
+const cfog=$("cfog"),fis=[...fog.querySelectorAll("i"),...cfog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
 $("wds").innerHTML=["☉","☾","♂","☿","♃","♀","♄"].map((g,i)=>'<div class="wd'+(i==0?" sun":i==6?" sat":"")+(i===now.getDay()?" moon":"")+'"><b>'+g+V+'</b></div>').join("");
 
 function clearFog(ms){fog.classList.add("clear");clearTimeout(clearFog.t);clearFog.t=setTimeout(()=>fog.classList.remove("clear"),ms||2600)}
@@ -342,13 +344,18 @@ function lights(stagger){
 function fogMask(){
  // 巻数の段から上下へ少しはみ出す（境目はノイズで波打つ）
  const t0=ch*.7,S=P.scale,EX=Math.round(ch*.1+20),a=P.art;
- fog.style.bottom=-EX+"px";document.documentElement.style.setProperty("--ws","url("+WS+")");
+ fog.style.bottom=-EX+"px";const EXX=Math.round((casee.clientWidth-stage.clientWidth)/2+20);fog.style.left=fog.style.right=-EXX+"px";document.documentElement.style.setProperty("--ws","url("+WS+")");
  const area="linear-gradient(180deg,rgba(0,0,0,"+a+") 0,rgba(0,0,0,"+a+") "+(t0-ch*.16)+"px,rgba(0,0,0,"+((1+a)/2)+") "+(t0-ch*.06)+"px,#000 "+(t0+2)+"px,#000 "+ch+"px,rgba(0,0,0,.6) "+(ch+EX*.4)+"px,transparent 100%)";
- const st=fog.style,img="url("+M1+"),url("+M2+"),"+area,sz=S+"px "+S+"px,"+(S*1.7)+"px "+(S*1.7)+"px,100% 100%";
- st.webkitMaskImage=img;st.maskImage=img;st.webkitMaskSize=sz;st.maskSize=sz;st.webkitMaskRepeat="repeat,repeat,no-repeat";st.maskRepeat="repeat,repeat,no-repeat";
- st.webkitMaskComposite="source-in,source-in";st.maskComposite="intersect,intersect";
+ const side="linear-gradient(90deg,transparent 0,#000 "+EXX+"px,#000 calc(100% - "+EXX+"px),transparent 100%)";
+ const st=fog.style,img="url("+M1+"),url("+M2+"),"+area+","+side,sz=S+"px "+S+"px,"+(S*1.7)+"px "+(S*1.7)+"px,100% 100%,100% 100%";
+ st.webkitMaskImage=img;st.maskImage=img;st.webkitMaskSize=sz;st.maskSize=sz;st.webkitMaskRepeat="repeat,repeat,no-repeat,no-repeat";st.maskRepeat="repeat,repeat,no-repeat,no-repeat";
+ st.webkitMaskComposite="source-in,source-in,source-in";st.maskComposite="intersect,intersect,intersect";
+ // ボタンの霧（同じ模様、縁は楕円でなくノイズで消える）
+ const cs=cfog.style,cimg="url("+M1+"),url("+M2+"),radial-gradient(closest-side,#000 45%,transparent)";
+ cs.webkitMaskImage=cimg;cs.maskImage=cimg;cs.webkitMaskSize=sz.split(",").slice(0,2).join(",")+",100% 100%";cs.maskSize=cs.webkitMaskSize;cs.webkitMaskRepeat="repeat,repeat,no-repeat";cs.maskRepeat=cs.webkitMaskRepeat;
+ cs.webkitMaskComposite="source-in,source-in";cs.maskComposite="intersect,intersect";cfog.style.setProperty("--dense",Math.min(.85,P.dense+.15));
  fog.style.setProperty("--dense",P.dense);
- fis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(1.3+n*.5))+"px"});
+ fis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(1.3+n%3*.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(2+n))+"px"});
 }
 function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;c.classList.toggle("mv",!!anim);c.style.left=(p*(cw+G))+"px";c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
@@ -396,7 +403,13 @@ function autoSolve(){
  };
  go();
 }
-$("mode").onclick=autoSolve;
+{const ctl=$("ctl2");let rt=0;
+ ctl.addEventListener("click",e=>{if(ctl.classList.contains("open"))return;e.preventDefault();e.stopPropagation();ctl.classList.add("open");cfog.classList.add("open");
+  clearTimeout(rt);rt=setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open")},6000)},true);
+ $("mode").onclick=()=>{if(solving||done())return;clearTimeout(rt);
+  const t0=performance.now();scrollTo({top:0,behavior:"smooth"});
+  const wait=()=>{if(scrollY>1&&performance.now()-t0<1800)return requestAnimationFrame(wait);setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open");autoSolve()},450)};
+  requestAnimationFrame(wait)}}
 
 // つかむ：触れると浮く。動かせば並べ替え、動かさず離せば手に取る
 let coached=false,coachT=[],finger=null,touched=false;
@@ -465,8 +478,8 @@ function coach(){
 const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0;
 function loop(ts){
  if(!calm)requestAnimationFrame(loop);if(ts-last<40)return;last=ts;const t=ts/1000*P.speed;
- const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;
- fis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-9:12))+"px "+(t*(n?2:-1.5))+"px"});
+ const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;cfog.style.webkitMaskPosition=pos;cfog.style.maskPosition=pos;
+ fis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n%3?-9:12))+"px "+(t*(n?2:-1.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-5:6))+"px "+(t*(n?1:-.8))+"px"});
 }
 requestAnimationFrame(loop);
