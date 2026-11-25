@@ -33,8 +33,8 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 /* 題の真鍮プレート（上の棚板の前縁に留める） */
 .plw{position:relative;height:0;z-index:9}
 /* ヒント：今日の巻の行き先。列は月明かりに照らされた星が示す */
-.hint{position:relative;z-index:8;margin:16px auto 0;text-align:center;font-family:var(--mincho);font-size:clamp(11px,3.3vw,14px);letter-spacing:.14em;color:#cfc3ad;text-shadow:0 1px 3px #000;line-height:1.9}
-.hint ruby rt{font-size:.5em;letter-spacing:.1em;color:#a89c88}
+.hiw{position:relative;height:0;z-index:9}
+.hint{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-family:var(--mincho);font-size:clamp(11px,3.3vw,14px);letter-spacing:.14em;color:#cfc3ad;text-shadow:0 1px 3px #000;line-height:1.9}
 .wd.moon b{color:#e4ecff!important;text-shadow:0 0 5px rgba(200,218,255,.95),0 0 14px rgba(160,190,255,.6);animation:moonb 4s ease-in-out infinite alternate}
 @keyframes moonb{from{text-shadow:0 0 5px rgba(200,218,255,.95),0 0 14px rgba(160,190,255,.6)}to{text-shadow:0 0 3px rgba(200,218,255,.7),0 0 8px rgba(160,190,255,.35)}}
 .plate{position:absolute;left:50%;top:-18px;transform:translateX(-50%);padding:4px 16px 3px;white-space:nowrap;font-family:var(--serif);font-weight:600;font-size:clamp(11px,3.2vw,15px);letter-spacing:.28em;text-indent:.28em;color:#3a2a12;text-shadow:0 1px 0 rgba(255,240,200,.45),0 -1px 0 rgba(0,0,0,.35);background:linear-gradient(180deg,#e6cf8e 0,#b8954f 38%,#8c6a2e 62%,#a98745 100%);border-radius:1px;box-shadow:0 0 0 1px #5a4219,inset 0 1px 0 rgba(255,245,210,.6),inset 0 -1px 0 rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.6)}
@@ -286,10 +286,10 @@ mkTex();
 const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.querySelector(".case"),foot=$("foot"),cards={};
 const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
 const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
-casee.insertBefore(bdUp,$("wds"));const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));
+casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));
 // 今日の巻（今日の日付を持つ本）が向けるべき顔の名で呼ぶ。ヴィランズ側は許可が出るまで罪名
 {const BEAST=["","獅子","狐","犬","猿","山羊","鰐","熊"],tk0=(td-1)%7+1,nm=tfr(tk0)?SN[tk0].sin:BEAST[tk0];
- const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を<ruby>置座<rt>おきくら</rt></ruby>へ導く";casee.insertBefore(hn,$("wds"))}casee.insertBefore(up,bdUp);
+ const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を置座へ導く";const hw=document.createElement("div");hw.className="hiw";hw.appendChild(hn);casee.insertBefore(hw,bdUp)}
 const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
 const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
 const fis=[...fog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
