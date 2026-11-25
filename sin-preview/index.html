@@ -30,6 +30,11 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 .bd{position:relative;height:12px;z-index:7;background:linear-gradient(180deg,#3d2c20,#24180f 50%,#160e09);box-shadow:0 3px 8px rgba(0,0,0,.6)}
 .board,.bd{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .gh{position:relative;width:100%;overflow:hidden;z-index:1;pointer-events:none}
+/* 題の真鍮プレート（上の棚板の前縁に留める） */
+.plw{position:relative;height:0;z-index:9}
+.plate{position:absolute;left:50%;top:-18px;transform:translateX(-50%);padding:4px 16px 3px;white-space:nowrap;font-family:var(--serif);font-weight:600;font-size:clamp(11px,3.2vw,15px);letter-spacing:.28em;text-indent:.28em;color:#3a2a12;text-shadow:0 1px 0 rgba(255,240,200,.45),0 -1px 0 rgba(0,0,0,.35);background:linear-gradient(180deg,#e6cf8e 0,#b8954f 38%,#8c6a2e 62%,#a98745 100%);border-radius:1px;box-shadow:0 0 0 1px #5a4219,inset 0 1px 0 rgba(255,245,210,.6),inset 0 -1px 0 rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.6)}
+.plate::before,.plate::after{content:"";position:absolute;top:50%;width:3px;height:3px;margin-top:-1.5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f1dfa8,#5e4519);box-shadow:0 0 0 .5px rgba(0,0,0,.4)}
+.plate::before{left:5px}.plate::after{right:5px}
 .gh.side{position:absolute;left:0;z-index:0}
 .gh.up{height:calc(var(--ch,300px)*.36);-webkit-mask-image:linear-gradient(180deg,transparent,#000 75%);mask-image:linear-gradient(180deg,transparent,#000 75%)}
 .gh.dn{height:calc(var(--ch,300px)*.3);-webkit-mask-image:linear-gradient(180deg,#000 20%,transparent);mask-image:linear-gradient(180deg,#000 20%,transparent)}
@@ -273,7 +278,7 @@ mkTex();
 const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.querySelector(".case"),foot=$("foot"),cards={};
 const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
 const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
-casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);
+casee.insertBefore(bdUp,$("wds"));const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));casee.insertBefore(up,bdUp);
 const dn=document.createElement("div");dn.className="gh dn";casee.appendChild(dn);
 const wf=document.createElement("div");wf.className="wallfog";wf.innerHTML="<i></i><i></i>";casee.appendChild(wf);
 const fis=[...fog.querySelectorAll("i")],wis=[...wf.querySelectorAll("i")];
