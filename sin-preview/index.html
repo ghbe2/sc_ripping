@@ -468,7 +468,7 @@ setInterval(()=>{
 function coach(){
  const c=cards[order[2]],s=cw+G;finger=document.createElement("div");finger.className="finger";stage.appendChild(finger);
  finger.style.left=(parseFloat(c.style.left)+cw/2)+"px";finger.style.top=(ch*.42)+"px";
- const T=(f,ms)=>coachT.push(setTimeout(f,ms)),tip=t=>{foot.textContent=t};
+ const T=(f,ms)=>coachT.push(setTimeout(f,ms)),tip=t=>{};
  T(()=>{finger&&finger.classList.add("on");tip("つかんで、並べ替える")},300);
  T(()=>{finger.classList.add("press");c.classList.add("lift");c.style.transition="transform .18s ease";c.style.transform="translateY(-6px)";setBox(c,D*.3,false,.18)},900);
  T(()=>{c.style.transition="transform .8s ease";c.style.transform="translate("+(s*.75)+"px,-6px)";finger.style.transition="opacity .4s,scale .2s,translate .8s ease";finger.style.translate=(s*.75)+"px 0"},1200);
@@ -542,7 +542,7 @@ addEventListener("resize",()=>{if(innerWidth===W0)return;W0=innerWidth;H0=innerH
 
 do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done());
 layout(true);refresh(0);sinkCtl();
-foot.textContent="つかんで並べ替え　・　触れて離して手に取る";
+
 if(!coached)setTimeout(coach,900);
 }
 </script></body></html>
