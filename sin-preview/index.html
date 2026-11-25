@@ -21,7 +21,7 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 /* 書庫の壁 */
 .case{position:relative;width:100vw;overflow:hidden;background:radial-gradient(70% 60% at 50% 45%,#1d1513,#0d0a0b 75%)}
 .case::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:6;background:linear-gradient(90deg,#0c090b 0,transparent 16%,transparent 84%,#0c090b 100%),linear-gradient(180deg,#0c090b 0,transparent 12%,transparent 88%,#0c090b 100%)}
-.wds{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;width:min(560px,calc(100vw - 24px));margin:8px auto 6px;position:relative;z-index:8}
+.wds{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;width:min(560px,calc(100vw - 24px));margin:20px auto 6px;position:relative;z-index:8}
 .wd{text-align:center;line-height:1.1;color:#c9b08a}
 .wd b{display:block;font-size:17px;font-family:var(--sym);font-weight:400}
 .wd.sun b{color:#e5a27c}.wd.sat b{color:#a3b4cc}
@@ -173,12 +173,14 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 /* 文字・札 */
 .ctl2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
 body:not(.manual) .mon{display:none}
-.foot{margin-top:14px;text-align:center;max-width:30em;min-height:1.8em;transition:opacity .8s}
+.foot{margin-top:14px;text-align:center;white-space:nowrap;min-height:1.8em;transition:opacity .8s}
 .foot.gone{opacity:0}
 .zhint,.foot{font-family:var(--mincho);font-size:11px;letter-spacing:.32em;color:rgba(214,196,150,.58);text-shadow:0 0 10px rgba(0,0,0,.95);line-height:2}
+.foot{letter-spacing:.16em;font-size:clamp(10px,2.9vw,11px)}
 .zhint::before,.zhint::after,.foot::before,.foot::after{content:"";display:inline-block;width:22px;height:1px;vertical-align:middle;margin:0 10px;background:linear-gradient(90deg,transparent,rgba(214,196,150,.5))}
 .zhint::after,.foot::after{transform:scaleX(-1)}
 .foot:empty::before,.foot:empty::after{display:none}
+.foot::before,.foot::after{width:14px;margin:0 6px}
 .zbtn{font-family:var(--mincho);font-size:12px;letter-spacing:.32em;color:#e9d7a6;background:linear-gradient(180deg,#1c1519,#0b080a);border:1px solid rgba(201,168,97,.55);border-radius:1px;min-height:44px;padding:10px 20px 10px 26px;cursor:pointer;box-shadow:inset 0 0 0 2px #0b080a,inset 0 0 0 3px rgba(201,168,97,.22),0 6px 14px rgba(0,0,0,.6);text-shadow:0 1px 0 #000}
 .zbtn:active{transform:translateY(1px)}
 .zbtn:focus-visible{outline:1px solid var(--gold-hi)}
