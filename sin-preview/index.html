@@ -207,6 +207,13 @@ body:not(.manual) .mon{display:none}
 .tune input{width:100%}
 .tune pre{white-space:pre-wrap;font-size:11px;color:#9d8f97;-webkit-user-select:text;user-select:text}
 @media (prefers-reduced-motion:reduce){body::before{animation:none}.fog{transition:none}.lt{animation:glowin .01s forwards!important}}
+
+/* まだ手に入れていない本は棚にない（その場所は空く） */
+.card.ghost{visibility:hidden;pointer-events:none}
+/* 試験用：所持冊数の切り替え（アーティファクトだけ） */
+.owntest{position:fixed;top:calc(6px + env(safe-area-inset-top));left:6px;right:6px;z-index:40;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;font:11px/1 system-ui,sans-serif;color:#cbbcc4;background:rgba(10,8,10,.82);border:1px solid #3a2d33;border-radius:6px;padding:6px}
+.owntest button{font:inherit;color:#e9d7a6;background:#1c1519;border:1px solid #5a4a3a;border-radius:4px;padding:6px 7px;min-width:34px}
+.owntest button.off{color:#6d6066;border-color:#2e2529;background:#0f0c0e}
 </style></head><body>
 <div class="case">
  <div class="wds" id="wds"></div>
@@ -326,7 +333,11 @@ for(let k=1;k<=7;k++){
 }
 // 今月の並び（日曜始まりの月だけ、全部しゅがけ側の並びも正解）
 // 正解は1つだけ（日曜始まりの月も、全部しゅがけ側の並びは正解にしない）
-const done=()=>{for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k)||c._fr!==tfr(k))return false}return true};
+const done=()=>{for(let k=1;k<=7;k++){const c=cards[k];if(!c._own||c._p!==tp(k)||c._fr!==tfr(k))return false}return true};
+// 所持（くじで手に入れた本）。未所持の本は空の背として棚に並び、動かせるが手に取れない
+let OWN=[1,1,1,1,1,1,1];try{const o=JSON.parse(localStorage.getItem("sinOwn"));if(Array.isArray(o)&&o.length===7)OWN=o}catch(_){}
+function applyOwn(){for(let k=1;k<=7;k++){cards[k]._own=!!OWN[k-1];cards[k].classList.toggle("ghost",!OWN[k-1])}const all=OWN.every(Boolean);$("ctl2").style.display=all?"":"none"}
+applyOwn();
 
 const GC=["#1d1519","#15191c","#22180f","#1b1120","#131313","#26161b","#141a15","#1f1d16"];
 function ghosts(){
@@ -388,7 +399,7 @@ function layout(full){
  stage.style.setProperty("--fz",(zF+4)+"px");stage.style.setProperty("--fsc",sc(zF+4));
 }
 // 正しい位置と向きにある本だけ、コインが灯り続ける（向き違いは灯さない）
-const coinOk=k=>okk(k);
+const coinOk=k=>cards[k]._own&&okk(k);
 // 外れたらすぐ消え、収まったらワンテンポ置いて灯る
 const COIN_DELAY=900;
 function coins(){clearTimeout(coins.t);for(let k=1;k<=7;k++)if(!coinOk(k))cards[k].classList.remove("okc");
@@ -401,7 +412,7 @@ function refresh(wait){
 // 正しく収まった本は一瞬光って、棚に少し沈む
 const okk=k=>cards[k]._p===tp(k)&&cards[k]._fr===tfr(k),snap=()=>[1,2,3,4,5,6,7].map(okk);
 function flash(c){c.classList.remove("ok");void c.offsetWidth;c.classList.add("ok");setTimeout(()=>c.classList.remove("ok"),1600)}
-function settleNew(was,delay){setTimeout(()=>{if(done())return;for(let k=1;k<=7;k++)if(!was[k-1]&&okk(k))flash(cards[k])},delay)}
+function settleNew(was,delay){setTimeout(()=>{if(done())return;for(let k=1;k<=7;k++)if(!was[k-1]&&coinOk(k))flash(cards[k])},delay)}
 function autoSolve(){
  if(solving||done())return;solving=true;document.body.classList.remove("manual");endCoach();
  const go=()=>{
@@ -465,13 +476,13 @@ function rock(c,turn){
 setInterval(()=>{
  if(solving||pt||finger||$("zoom").classList.contains("on")||done()||document.hidden)return;
  if(Math.random()>P.rattle)return;
- const wr=[];for(let k=1;k<=7;k++){const c=cards[k];if(c._p!==tp(k))wr.push([c,false]);else if(c._fr!==tfr(k))wr.push([c,true])}
+ const wr=[];for(let k=1;k<=7;k++){const c=cards[k];if(!c._own)continue;if(c._p!==tp(k))wr.push([c,false]);else if(c._fr!==tfr(k))wr.push([c,true])}
  if(!wr.length)return;const[c,t]=wr[Math.random()*wr.length|0];rock(c,t);
 },1500);
 
 // 最初の1回だけ、指の影が操作を見せる
 function coach(){
- const c=cards[order[2]],s=cw+G;finger=document.createElement("div");finger.className="finger";stage.appendChild(finger);
+ const ow=order.filter(k=>cards[k]._own),c=cards[ow[Math.min(2,ow.length-1)]],s=cw+G;finger=document.createElement("div");finger.className="finger";stage.appendChild(finger);
  finger.style.left=(parseFloat(c.style.left)+cw/2)+"px";finger.style.top=(ch*.42)+"px";
  const T=(f,ms)=>coachT.push(setTimeout(f,ms)),tip=t=>{};
  T(()=>{finger&&finger.classList.add("on");tip("つかんで、並べ替える")},300);
@@ -505,7 +516,7 @@ if(location.hash==="#tune"){
 // 手に取る／戻す：画面に見えている背表紙の大きさ・位置から連続して飛ぶ
 function fit3(c,fr,Hh){const bf=book.querySelector(fr?".spv":".sps"),cf=c.querySelector(c._fr?".spv":".sps"),br=bf.getBoundingClientRect(),cr=cf.getBoundingClientRect(),k=br.height/Hh;
  return{s:cr.height/br.height,dx:((cr.left+cr.width/2)-(br.left+br.width/2))/k,dy:((cr.top+cr.height/2)-(br.top+br.height/2))/k}}
-function openZ(k){
+function openZ(k){if(!cards[k]._own){rock(cards[k],false);return}
  const c=cards[k];zk=k;const Hh=Math.min(innerHeight*.56,520),S=Math.max(46,Hh/8),Dz=Math.min(Hh*.7,innerWidth*.84),z=$("zoom"),tot=Hh*1.16+96;
  z.style.setProperty("--zh",Hh+"px");z.style.setProperty("--zt",Math.max(60,(innerHeight-tot)/2+Hh*.08)+"px");
  book.style.cssText="width:"+S+"px;height:"+Hh+"px;--s:"+S+"px;--d:"+Dz+"px;--capf:14px;--cs:"+(S*.34)+"px";
@@ -548,6 +559,14 @@ addEventListener("resize",()=>{if(innerWidth===W0)return;W0=innerWidth;H0=innerH
 
 do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done());
 layout(true);refresh(0);sinkCtl();
+if(!/github\.io$/.test(location.hostname)){
+ const tp_=document.createElement("div");tp_.className="owntest";document.body.appendChild(tp_);
+ const draw=()=>{tp_.innerHTML="<span>所持 "+OWN.filter(Boolean).length+"/7</span>"+[1,2,3,4,5,6,7].map(k=>'<button data-k="'+k+'" class="'+(OWN[k-1]?"":"off")+'">'+SN[k].sin+'</button>').join("")+'<button data-a="1">全部</button><button data-a="0">1冊</button>'};
+ draw();tp_.onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.a!=null)OWN=b.dataset.a==="1"?OWN.map(()=>1):OWN.map((_,i)=>i===0?1:0);else{const i=b.dataset.k-1;if(OWN[i]&&OWN.filter(Boolean).length===1)return;OWN[i]=OWN[i]?0:1}
+  try{localStorage.setItem("sinOwn",JSON.stringify(OWN))}catch(_){}
+  applyOwn();wasDone=false;refresh(0);draw()};
+}
 
 if(!coached)setTimeout(coach,900);
 }
