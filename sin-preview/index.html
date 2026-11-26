@@ -377,7 +377,7 @@ function lights(stagger){
  const rh=ch*.3/6,t0=ch*.7,dn_=done();let h="";
  for(let p=0;p<7;p++){const k=order[p],fr=cards[k]._fr;for(let r=0;r<6;r++){
   const n=numAt(k,fr,r);if(!n||n>len)continue;
-  let cl="";if(td===n){if(dn_)cl="gold"}else if(dn_){if(H.has(m*100+n))cl="silver";else if(p===0)cl="red";else if(p===6)cl="blue"}
+  let cl="";if(td===n)cl=dn_?"gold":"gold dim";else if(dn_){if(H.has(m*100+n))cl="silver";else if(p===0)cl="red";else if(p===6)cl="blue"}
   if(!cl)continue;
   const dl=stagger?(p*.12+r*.06):0,cell=cards[k].querySelector((fr?".spv":".sps")+" .cells").children[r];cell.className+=" "+cl;cell.style.transitionDelay=dl+"s";
   h+='<span class="lt '+cl+'" style="left:'+(p*(cw+G)+cw/2)+'px;top:'+(t0+(r+.5)*rh)+'px;width:'+(cw*1.5)+'px;height:'+(rh*2.4)+'px;animation-delay:'+dl+'s'+(cl==="gold"&&stagger?','+(dl+1.2)+'s':'')+'"></span>';
@@ -583,7 +583,7 @@ addEventListener("keydown",e=>{if(e.key==="Escape")closeZ();else if($("zoom").cl
 addEventListener("pageshow",e=>{if(e.persisted){fogMask();sinkCtl()}});
 addEventListener("resize",()=>{if(innerWidth===W0)return;W0=innerWidth;H0=innerHeight;layout(true);sinkCtl()});
 
-do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done());
+do{for(let i=6;i>0;i--){const j=Math.random()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}for(let k=1;k<=7;k++){const c=cards[k];c._fr=Math.random()<.5;c._R=c._fr?0:180}applyPos(false)}while(done()||okk((td-1)%7+1)); // 開いた時点で、今日の巻がヒントどおりの場所・向きにあることはない
 layout(true);refresh(0);sinkCtl();
 if(!/github\.io$/.test(location.hostname)){
  const tp_=document.createElement("div");tp_.className="owntest";document.body.appendChild(tp_);
