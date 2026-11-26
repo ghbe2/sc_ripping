@@ -235,6 +235,22 @@ body:not(.manual) .mon{display:none}
 .paper{position:absolute;left:20%;right:8%;top:12%;bottom:26%;display:flex;flex-direction:column;justify-content:center;text-align:center;color:#3a2412;font-family:var(--mincho);font-size:clamp(12px,3.5vw,14.5px);line-height:2.4;letter-spacing:.08em;white-space:nowrap;text-shadow:0 0 1px rgba(58,36,18,.3)}
 .paper p{margin:0;padding-left:.08em}
 .paper .sig{margin-bottom:1.1em;letter-spacing:.2em;padding-left:.2em;color:#6a1a12}
+
+/* 裏表紙（全面の絵＋下に重ねる文字）2026-11-26 */
+.bk .bk-art{position:absolute;inset:0;height:auto;margin:0;box-shadow:none!important}
+.bk .bk-art img{object-position:50% 20%}
+.bk.v .bk-art,.bk.s .bk-art{background:color-mix(in srgb,var(--c) 55%,#140f12)}
+.bk.s .bk-art::after{display:none}
+.bk .bk-ph{align-items:flex-start;padding-top:22%;opacity:.55}
+.bk-line{display:none}
+.bk .bk-txt{position:absolute;left:0;right:0;bottom:0;flex:none;padding:26% 8% 6%;background:linear-gradient(180deg,rgba(8,6,8,0) 0,rgba(8,6,8,.72) 22%,rgba(8,6,8,.9) 45%,rgba(8,6,8,.94) 100%);z-index:2}
+.bk .bk-story{flex:none;font-size:11px;line-height:1.75;overflow:visible}
+.bk .bk-story p{margin:0 0 .5em}
+.bk .bk-talk{margin:.4em 0 0;font-size:11px;line-height:1.7;font-family:var(--mincho)}
+.bk .bk-talk p{margin:0;text-indent:-.5em;padding-left:.5em}
+.bk.s .bk-talk{color:#f2e4ec}
+.bk.v .bk-talk{color:#f1e3c8}
+.bk .bk-foot{margin-top:10px}
 </style></head><body>
 <div class="case">
  <div class="wds" id="wds"></div>
@@ -254,7 +270,9 @@ const SN={
 1:{sin:"傲慢",lat:"SUPERBIA",col:"#b8943a",v:"？",s:"アルバ"},
 2:{sin:"強欲",lat:"AVARITIA",col:"#3f8a62",v:"？",s:"ジーナ"},
 3:{sin:"嫉妬",lat:"INVIDIA",col:"#4a6fb8",v:"？",s:"エノ"},
-4:{sin:"憤怒",lat:"IRA",col:"#c2362a",v:"？",s:"ウーヨン",sline:"なら、わたしは、いつまで待てばいい。"},
+4:{sin:"憤怒",lat:"IRA",col:"#c2362a",v:"？",s:"ウーヨン",sline:"なら、わたしは、いつまで待てばいい。",
+ sstory:"ウーヨンの誕生は多くの人が待ち焦がれた。寝台やモニターの向こうで、雷鳴のような喝采が響き渡った。しかしそれはウーヨンにとって祝福ではない。\n3つのアマル特徴を備えた命を生み出す実験は終わった。ウーヨンの役割も終わったのだ。故にWuyong（無用）。ただ保管されているだけの命。その脳と胸を焦がす熱が、誰にも耐え難い憤怒だと知る日を、待つだけの命。",
+ stalk:["「ぁ…うー…よん、……？　うーよ……」","「耳は聞こえているんだったな。点滴を抜かないように躾けておけ」"]},
 5:{sin:"色欲",lat:"LUXURIA",col:"#b54a86",v:"？",s:"マルガリティフェラ"},
 6:{sin:"暴食",lat:"GULA",col:"#c27530",v:"？",s:"デロルス"},
 7:{sin:"怠惰",lat:"ACEDIA",col:"#6f5aa8",v:"？",s:"ウェンカ"}};
@@ -292,10 +310,10 @@ function spine(k,side){
  return '<div class="face sp '+side+'" style="--c:'+d.col+'"><div class="cap"><span>'+d.sin+'</span></div><div class="bg"><div class="win">'+img+'</div></div>'+(ln?'<div class="line '+ls+'">'+esc(ln)+'</div>':'')+'<div class="cells">'+'<div></div>'.repeat(6)+'</div><div class="coin">'+PLN[k]+V+'</div><div class="rim"></div></div>';
 }
 function cover(k,side){
- const d=SN[k],isV=side==="v",src=isV?d.vimg:d.simg,pos=isV?d.vpos:d.spos,nm=isV?d.v:d.s,st=isV?d.vstory:d.sstory,ln=isV?d.vline:d.sline;
+ const d=SN[k],isV=side==="v",src=isV?d.vimg:d.simg,pos=isV?d.vpos:d.spos,nm=isV?d.v:d.s,st=isV?d.vstory:d.sstory,tk=isV?d.vtalk:d.stalk,ln=isV?d.vline:d.sline;
  return '<div class="bk '+side+'" style="--c:'+d.col+'"><div class="bk-art">'+(src?'<img src="'+src+'" alt="" style="object-position:'+(pos||"50% 30%")+'">':'<div class="bk-ph">'+esc(known(nm)?nm:"絵は未着")+'</div>')+(ln?'<div class="bk-line">'+esc(ln)+'</div>':'')+'</div>'+
   '<div class="bk-txt"><div class="bk-sin"><b>'+PLN[k]+V+'</b>'+d.sin+'<i>'+d.lat+'</i></div><div class="bk-name">'+esc(known(nm)?nm:"――")+'</div>'+
-  '<p class="bk-story'+(st?'':' ghost')+'">'+esc(st||"ここにミニストーリーが入る。")+'</p><div class="bk-foot">'+(isV?"VILLAINS":"SUGAR CAGE")+'</div></div></div>';
+  '<div class="bk-story'+(st?'':' ghost')+'">'+(st?st.split("\n").map(x=>"<p>"+esc(x)+"</p>").join(""):"<p>ここにミニストーリーが入る。</p>")+'</div>'+(tk?'<div class="bk-talk">'+tk.map(x=>"<p>"+esc(x)+"</p>").join("")+'</div>':'')+'<div class="bk-foot">'+(isV?"VILLAINS":"SUGAR CAGE")+'</div></div></div>';
 }
 const faces=k=>'<div class="f3 spv">'+spine(k,"v")+'</div><div class="f3 sps">'+spine(k,"s")+'</div><div class="f3 cv">'+cover(k,"v")+'</div><div class="f3 cs">'+cover(k,"s")+'</div>';
 const fs=(t,w,rh)=>Math.max(7,Math.min(w*.3,rh*.72,w*.8/((t.length||1)*.56)));
