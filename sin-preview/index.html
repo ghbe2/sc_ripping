@@ -86,9 +86,14 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 @keyframes obdrift{to{background-position:90px 14px,-150px 9px,0 0}}
 .coin{position:absolute;left:50%;top:calc(70% - var(--cs)*.62);transform:translate(-50%,-50%);z-index:7;width:var(--cs);height:var(--cs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cs)*.58);line-height:1;color:#3a2a12;font-family:var(--sym);background:radial-gradient(circle at 35% 30%,#f6e6b4,#c9a861 55%,#7d6435);box-shadow:0 1px 3px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,240,200,.45);filter:grayscale(1) brightness(.5);opacity:.55}
 .rim{position:absolute;inset:0;border:1px solid rgba(236,217,160,.75);border-radius:4px;opacity:0;pointer-events:none;z-index:8;box-shadow:inset 0 0 14px rgba(236,217,160,.45)}
-.card .spv .coin,.card .sps .coin{transition:filter .5s ease,opacity .5s ease,box-shadow .5s ease}
-.card.okc .coin{filter:grayscale(0) brightness(1.08);opacity:1;box-shadow:0 0 7px 2px rgba(255,214,140,.55),0 0 16px 4px rgba(255,200,110,.22),inset 0 0 0 1px rgba(255,240,200,.7)}
-.card.ok .coin{animation:coinflash 1.2s ease}
+/* 惑星記号のコインは使わない（棚の上の曜日の記号と混ざるため）。正しく収まった本は罪名の札が灯る */
+.coin{display:none!important}
+.cap span{transition:filter .6s ease}
+.cap{transition:background-color .6s ease}
+.card.okc .cap span{filter:brightness(1.25) drop-shadow(0 0 3px rgba(255,214,140,.95)) drop-shadow(0 0 9px rgba(255,200,110,.55))}
+.card.okc .cap{background:radial-gradient(70% 90% at 50% 55%,rgba(255,205,110,.26),rgba(255,205,110,0) 72%)}
+.card.ok .cap span{animation:capflash 1.2s ease}
+@keyframes capflash{0%{filter:none}25%{filter:brightness(1.6) drop-shadow(0 0 5px rgba(255,226,160,1)) drop-shadow(0 0 16px rgba(255,205,120,.8))}100%{filter:brightness(1.25) drop-shadow(0 0 3px rgba(255,214,140,.95)) drop-shadow(0 0 9px rgba(255,200,110,.55))}}
 @keyframes coinflash{0%{filter:grayscale(1) brightness(.5);opacity:.55}20%{filter:grayscale(0) brightness(1.3);opacity:1;box-shadow:0 0 10px 3px rgba(255,222,150,.85),0 0 22px 6px rgba(255,205,120,.45),inset 0 0 0 1px rgba(255,240,200,.8)}100%{filter:grayscale(0) brightness(1.08);opacity:1;box-shadow:0 0 7px 2px rgba(255,214,140,.55),0 0 16px 4px rgba(255,200,110,.22),inset 0 0 0 1px rgba(255,240,200,.7)}}
 
 /* ヴィランズ＝敵：古い布張り＋金箔 */
