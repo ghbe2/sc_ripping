@@ -214,6 +214,27 @@ body:not(.manual) .mon{display:none}
 .owntest{position:fixed;top:calc(6px + env(safe-area-inset-top));left:6px;right:6px;z-index:40;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;font:11px/1 system-ui,sans-serif;color:#cbbcc4;background:rgba(10,8,10,.82);border:1px solid #3a2d33;border-radius:6px;padding:6px}
 .owntest button{font:inherit;color:#e9d7a6;background:#1c1519;border:1px solid #5a4a3a;border-radius:4px;padding:6px 7px;min-width:34px}
 .owntest button.off{color:#6d6066;border-color:#2e2529;background:#0f0c0e}
+
+/* 羊皮紙の巻物（棚の右上）と、開いた羊皮紙 */
+.roll{position:absolute;right:7%;top:-25px;width:38px;height:13px;border:0;padding:0;cursor:pointer;border-radius:6.5px;background:linear-gradient(180deg,#f0e0b6 0,#d9bf86 35%,#a8874f 70%,#6e5430 100%);box-shadow:0 3px 5px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,250,230,.6)}
+.roll::before,.roll::after{content:"";position:absolute;top:0;width:7px;height:13px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#5b4426 0 30%,#c7a970 35% 60%,#8a6c3d 70%)}
+.roll::before{left:-2px}.roll::after{right:-2px}
+.roll i{position:absolute;left:46%;top:-1px;width:3px;height:15px;background:linear-gradient(90deg,#5e1412,#9c2a22,#5e1412);border-radius:1px}
+.roll::marker{display:none}
+.roll:after{}
+.roll{animation:rollglow 5s ease-in-out infinite}
+@keyframes rollglow{0%,100%{filter:brightness(.82)}50%{filter:brightness(1.02)}}
+.parch{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(8,6,8,0);visibility:hidden;transition:background-color .5s,visibility 0s linear .7s}
+.parch.on{visibility:visible;background:rgba(8,6,8,.72);transition:background-color .5s}
+.pw{position:relative;width:min(82vw,330px);--h:0px}
+.paper{position:relative;padding:34px 26px 30px;text-align:center;color:#3b2a16;font-family:var(--mincho);font-size:clamp(13px,3.8vw,15px);line-height:2.3;letter-spacing:.12em;background:radial-gradient(120% 90% at 50% 50%,#f1e2bc 0,#e3cc96 55%,#b9965c 100%);box-shadow:inset 0 0 28px rgba(90,60,20,.55),0 10px 30px rgba(0,0,0,.6);clip-path:inset(50% 0 50% 0);transition:clip-path .7s cubic-bezier(.3,.1,.2,1)}
+.paper::before{content:"";position:absolute;inset:0;background:var(--ws) 0 0/140px repeat;mix-blend-mode:multiply;opacity:.16;pointer-events:none}
+.parch.on .paper{clip-path:inset(0 0 0 0)}
+.paper p{margin:0}
+.paper .sig{margin-top:18px;font-size:.92em;letter-spacing:.3em;color:#5a1a14}
+.rod{position:absolute;left:-10px;right:-10px;height:16px;border-radius:8px;background:linear-gradient(180deg,#f0e0b6 0,#d9bf86 35%,#a8874f 70%,#6e5430 100%);box-shadow:0 3px 6px rgba(0,0,0,.6);transition:transform .7s cubic-bezier(.3,.1,.2,1);z-index:2}
+.rod.t{top:-8px;transform:translateY(calc(var(--h) / 2))}.rod.b{bottom:-8px;transform:translateY(calc(var(--h) / -2))}
+.parch.on .rod{transform:none}
 </style></head><body>
 <div class="case">
  <div class="wds" id="wds"></div>
@@ -224,6 +245,7 @@ body:not(.manual) .mon{display:none}
 <div class="ctl2" id="ctl2"><button class="zbtn mon" id="mode">月に赦しを乞う</button></div>
 <div class="fog lf" id="cfog"><i></i><i></i></div>
 <div class="tune" id="tune" hidden></div>
+<div class="parch" id="parch"><div class="pw" id="pw"><div class="rod t"></div><div class="paper"><p>差し替え、抜き出し、背を返す。</p><p>揺れる書は、まだ置座にない。</p><p>月に従え。</p><p class="sig">揃えよ、七つの大罪。</p></div><div class="rod b"></div></div></div>
 <div class="zoom" id="zoom"><div class="zstage"><div class="book3d" id="book"></div></div><p class="zhint">左右に回す　・　下へ払えば棚へ</p><div class="zrow"><button class="zbtn" id="zc">棚に戻す</button></div></div>
 <script>
 {
@@ -309,6 +331,10 @@ const stage=$("stage"),fog=$("fog"),L=$("lights"),book=$("book"),casee=document.
 const side=document.createElement("div");side.className="gh side";casee.insertBefore(side,casee.firstChild);
 const up=document.createElement("div");up.className="gh up";const bdUp=document.createElement("div");bdUp.className="bd";
 casee.insertBefore(bdUp,$("wds"));casee.insertBefore(up,bdUp);const plate=document.createElement("div");plate.className="plate";plate.textContent="PÉCHÉS DOS-À-DOS";const plw=document.createElement("div");plw.className="plw";plw.appendChild(plate);casee.insertBefore(plw,$("wds"));
+{const r=document.createElement("button");r.className="roll";r.setAttribute("aria-label","覚え書き");r.innerHTML="<i></i>";plw.appendChild(r);
+ const pa=$("parch"),pw=$("pw");
+ r.onclick=e=>{e.stopPropagation();pw.style.setProperty("--h",pw.querySelector(".paper").offsetHeight+"px");void pw.offsetWidth;pa.classList.add("on")};
+ pa.onclick=()=>pa.classList.remove("on")}
 // 今日の巻（今日の日付を持つ本）が向けるべき顔の象徴で呼ぶ。ヴィランズ側＝聖遺物、しゅがけ側＝獣
 {const BEAST=["","獅子","狐","犬","猿","山羊","鰐","熊"],RELIC=["","王笏","宝砲","割鏡","蠍","香","大蛇","紡錘"],tk0=(td-1)%7+1,nm=(tfr(tk0)?RELIC:BEAST)[tk0];
  const hn=document.createElement("div");hn.className="hint";hn.innerHTML="月の灯りが、"+nm+"を置座へ導く";const hw=document.createElement("div");hw.className="hiw";hw.appendChild(hn);casee.insertBefore(hw,bdUp)}
@@ -351,7 +377,7 @@ function lights(stagger){
  const rh=ch*.3/6,t0=ch*.7,dn_=done();let h="";
  for(let p=0;p<7;p++){const k=order[p],fr=cards[k]._fr;for(let r=0;r<6;r++){
   const n=numAt(k,fr,r);if(!n||n>len)continue;
-  let cl="";if(td===n)cl=dn_?"gold":"gold dim";else if(dn_){if(H.has(m*100+n))cl="silver";else if(p===0)cl="red";else if(p===6)cl="blue"}
+  let cl="";if(td===n){if(dn_)cl="gold"}else if(dn_){if(H.has(m*100+n))cl="silver";else if(p===0)cl="red";else if(p===6)cl="blue"}
   if(!cl)continue;
   const dl=stagger?(p*.12+r*.06):0,cell=cards[k].querySelector((fr?".spv":".sps")+" .cells").children[r];cell.className+=" "+cl;cell.style.transitionDelay=dl+"s";
   h+='<span class="lt '+cl+'" style="left:'+(p*(cw+G)+cw/2)+'px;top:'+(t0+(r+.5)*rh)+'px;width:'+(cw*1.5)+'px;height:'+(rh*2.4)+'px;animation-delay:'+dl+'s'+(cl==="gold"&&stagger?','+(dl+1.2)+'s':'')+'"></span>';
