@@ -159,7 +159,7 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 /* 霧と灯り（位置と奥行きは JS） */
 .fog{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:hidden;-webkit-mask-composite:source-in;mask-composite:intersect;transition:opacity 1.6s ease}
 .fog.clear{opacity:0;transition:opacity .4s ease}
-.fog::before{content:"";position:absolute;inset:0;background:rgba(118,112,130,var(--dense,.62));-webkit-backdrop-filter:blur(2.5px);backdrop-filter:blur(2.5px)}
+.fog::before{content:"";position:absolute;inset:0;background:rgba(118,112,130,var(--dense,.62))}
 .fog i{position:absolute;inset:0;opacity:.22;background-repeat:repeat}
 .fog i:nth-child(2){opacity:.75}
 .fog i:nth-child(3){display:none}
@@ -591,7 +591,7 @@ function coach(){
 
 const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0;
 function loop(ts){
- if(!calm)requestAnimationFrame(loop);if(ts-last<40)return;last=ts;const t=ts/1000*P.speed;
+ if(!calm)requestAnimationFrame(loop);if(ts-last<100||document.hidden||$("zoom").classList.contains("on"))return;last=ts;const t=ts/1000*P.speed;
  const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;cfog.style.webkitMaskPosition=pos;cfog.style.maskPosition=pos;
  fis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n%3?-9:12))+"px "+(t*(n?2:-1.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-5:6))+"px "+(t*(n?1:-.8))+"px"});
