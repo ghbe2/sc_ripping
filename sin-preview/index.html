@@ -26,7 +26,7 @@ body::before{content:"";position:fixed;inset:-10%;pointer-events:none;background
 .wd{text-align:center;line-height:1.1;color:#c9b08a}
 .wd b{display:block;font-size:17px;font-family:var(--sym);font-weight:400}
 .wd.sun b{color:#e5a27c}.wd.sat b{color:#a3b4cc}
-.stage{position:relative;width:min(560px,calc(100vw - 24px));margin:0 auto;z-index:8;perspective:1100px;perspective-origin:50% 40%;transform-style:preserve-3d;touch-action:none}
+.stage{position:relative;width:min(560px,calc(100vw - 24px));margin:0 auto;z-index:10;perspective:1100px;perspective-origin:50% 40%;transform-style:preserve-3d;touch-action:none}
 .board{position:relative;height:16px;z-index:7;background:linear-gradient(180deg,#4a3527,#2e2017 45%,#1a110c);box-shadow:0 -3px 8px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,225,190,.16)}
 .bd{position:relative;height:12px;z-index:7;background:linear-gradient(180deg,#3d2c20,#24180f 50%,#160e09);box-shadow:0 3px 8px rgba(0,0,0,.6)}
 .board,.bd{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
@@ -280,7 +280,7 @@ body:not(.manual) .mon{display:none}
 .bk.s .bs-ft{position:absolute;left:9%;right:7%;bottom:2%;display:flex;justify-content:space-between;font:7.5px/1 var(--serif);letter-spacing:.15em;color:#8f8272}
 @property --d{syntax:"<length>";inherits:true;initial-value:0px}
 @property --s{syntax:"<length>";inherits:true;initial-value:0px}
-.fogwrap{position:absolute;z-index:9;pointer-events:none}
+.fogwrap{position:absolute;z-index:11;pointer-events:none}
 .book3d .f3{transition:opacity .35s ease}
 .book3d.fade .f3{opacity:0}
 </style></head><body>
@@ -647,7 +647,7 @@ function openZ(k){if(!cards[k]._own){rock(cards[k],false);return}
  // 棚の本が霧の向こうを通って手元まで出てくる
  hiImgs(c,true);c.classList.remove("mv");cardTr(c,true,.6);void c.offsetWidth;bigPose(c,c._R);
  setTimeout(()=>{if(zk!==k)return;z.classList.remove("closing");book.classList.remove("fade");
-  setTimeout(()=>{if(zk!==k)return;c.style.visibility="hidden";cardTr(c,false);homePose(c,c._R);hiImgs(c,false)},380)},600);
+  setTimeout(()=>{if(zk!==k)return;c.style.visibility="hidden";cardTr(c,false);homePose(c,c._R);hiImgs(c,false);if(!zd)book.style.transition=""},380)},600);
  const r0=zR,cl0=()=>$("zoom").classList.contains("closing");setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0()){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0())book.style.transform="rotateY("+zR+"deg)"},650)}},1550);
 }
 function closeZ(){
