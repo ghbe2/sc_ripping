@@ -280,7 +280,7 @@ body:not(.manual) .mon{display:none}
 .bk.s .bs-ft{position:absolute;left:9%;right:7%;bottom:2%;display:flex;justify-content:space-between;font:7.5px/1 var(--serif);letter-spacing:.15em;color:#8f8272}
 @property --d{syntax:"<length>";inherits:true;initial-value:0px}
 @property --s{syntax:"<length>";inherits:true;initial-value:0px}
-.zfog{position:fixed;overflow:hidden;pointer-events:none;z-index:5;opacity:0;transition:opacity .55s ease}
+.zfog{position:fixed;overflow:hidden;pointer-events:none;z-index:5;opacity:0;transition:opacity .45s ease}
 .zfog.on{opacity:1}
 .zfog .fog{inset:auto!important}
 </style></head><body>
@@ -630,7 +630,7 @@ function openZ(k){if(!cards[k]._own){rock(cards[k],false);return}
  c.style.visibility="hidden";
  book.style.transition="transform .6s cubic-bezier(.2,.75,.2,1)";book.style.transform="rotateY("+zR+"deg)";
  setTimeout(()=>{if(zk===k&&!zd)book.style.transition=""},640);
- const r0=zR;setTimeout(()=>{if(zk===k&&zR===r0&&!zd){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd)book.style.transform="rotateY("+zR+"deg)"},650)}},950);
+ const r0=zR,cl0=()=>$("zoom").classList.contains("closing");setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0()){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0())book.style.transform="rotateY("+zR+"deg)"},650)}},950);
 }
 function closeZ(){
  const z=$("zoom");if(!z.classList.contains("on")||!zk||z.classList.contains("closing"))return;const k=zk,c=cards[k];
@@ -638,7 +638,7 @@ function closeZ(){
  const Hh=parseFloat(book.style.height)||400,zs=book.parentElement;
  // 戻り先の棚と同じ見え方（遠近・奥行き・位置）で着地させ、入れ替わりを見えなくする
  const st=stage.getBoundingClientRect(),zr=zs.getBoundingClientRect(),cr=c.getBoundingClientRect();
- const cur=book.style.transform;book.style.transition="none";book.style.transform="none";const br=book.getBoundingClientRect();book.style.transform=cur;void book.offsetWidth;
+ zd=null;const cur=getComputedStyle(book).transform;book.style.transition="none";book.style.transform="none";const br=book.getBoundingClientRect();book.style.transform=cur==="none"?"rotateY("+zR+"deg)":cur;void book.offsetWidth;
  const s=cr.height/Hh,dx=(cr.left+cr.width/2)-(br.left+br.width/2),dy=(cr.top+cr.height/2)-(br.top+br.height/2);
  zs.style.transition="perspective .55s cubic-bezier(.4,0,.2,1),perspective-origin .55s cubic-bezier(.4,0,.2,1)";
  zs.style.perspective="1100px";zs.style.perspectiveOrigin=(st.left+st.width*.5-zr.left)+"px "+(st.top+st.height*.4-zr.top)+"px";
@@ -648,15 +648,15 @@ function closeZ(){
  book.style.transform="translate3d("+dx+"px,"+dy+"px,"+(-D/2)+"px) scale3d("+s+","+s+","+s+") rotateY("+zT+"deg)";
  // 棚の霧の写しを、戻っていく本の上にだけ重ねてゆっくり濃くする（着地した時には本物の霧と同じ）
  const fr2=fog.getBoundingClientRect(),zf=document.createElement("div");zf.className="zfog";
- Object.assign(zf.style,{left:cr.left+"px",top:cr.top+"px",width:cr.width+"px",height:cr.height+"px"});
- const cl=fog.cloneNode(true);cl.removeAttribute("id");Object.assign(cl.style,{left:(fr2.left-cr.left)+"px",top:(fr2.top-cr.top)+"px",width:fr2.width+"px",height:fr2.height+"px",right:"auto",bottom:"auto"});
- zf.appendChild(cl);z.appendChild(zf);void zf.offsetWidth;zf.classList.add("on");
+ Object.assign(zf.style,{left:fr2.left+"px",top:fr2.top+"px",width:fr2.width+"px",height:fr2.height+"px"});
+ const cl=fog.cloneNode(true);cl.removeAttribute("id");Object.assign(cl.style,{left:"0",top:"0",width:fr2.width+"px",height:fr2.height+"px",right:"auto",bottom:"auto"});
+ zf.appendChild(cl);z.appendChild(zf);fog.style.transition="none";fog.style.visibility="hidden";void zf.offsetWidth;zf.classList.add("on");
  const was=snap(),changed=c._fr!==fr;
  setTimeout(()=>{c._fr=fr;c._R=fr?0:180;setBox(c,0,true);c.style.visibility="";zk=0;
-  z.style.transition="none";z.classList.remove("on");z.classList.remove("closing");zf.remove();book.style.transition="";zs.style.transition="";zs.style.perspective="";zs.style.perspectiveOrigin="";void z.offsetWidth;z.style.transition="";
+  z.style.transition="none";z.classList.remove("on");z.classList.remove("closing");fog.style.visibility="";zf.remove();requestAnimationFrame(()=>{fog.style.transition=""});book.style.transition="";zs.style.transition="";zs.style.perspective="";zs.style.perspectiveOrigin="";void z.offsetWidth;z.style.transition="";
   if(changed){applyPos(false);refresh(300);settleNew(was,COIN_DELAY)}},570);
 }
-book.addEventListener("pointerdown",e=>{zd={x:e.clientX,y:e.clientY,r:zR};try{book.setPointerCapture(e.pointerId)}catch(_){}book.style.transition="none"});
+book.addEventListener("pointerdown",e=>{if($("zoom").classList.contains("closing"))return;zd={x:e.clientX,y:e.clientY,r:zR};try{book.setPointerCapture(e.pointerId)}catch(_){}book.style.transition="none"});
 book.addEventListener("pointermove",e=>{if(zd)book.style.transform="rotateY("+(zd.r+(e.clientX-zd.x)*.45)+"deg)"});
 book.addEventListener("pointerup",e=>{
  if(!zd)return;const dx=e.clientX-zd.x,dy=e.clientY-zd.y;book.style.transition="";
@@ -667,7 +667,7 @@ book.addEventListener("pointerup",e=>{
 });
 book.addEventListener("pointercancel",()=>{if(zd){book.style.transition="";book.style.transform="rotateY("+zR+"deg)";zd=null}});
 $("zc").onclick=closeZ;$("zoom").onclick=e=>{if(e.target.id==="zoom")closeZ()};
-addEventListener("keydown",e=>{if(e.key==="Escape")closeZ();else if($("zoom").classList.contains("on")){if(e.key==="ArrowLeft"){zR-=90;book.style.transform="rotateY("+zR+"deg)"}if(e.key==="ArrowRight"){zR+=90;book.style.transform="rotateY("+zR+"deg)"}}});
+addEventListener("keydown",e=>{if(e.key==="Escape")closeZ();else if($("zoom").classList.contains("on")&&!$("zoom").classList.contains("closing")){if(e.key==="ArrowLeft"){zR-=90;book.style.transform="rotateY("+zR+"deg)"}if(e.key==="ArrowRight"){zR+=90;book.style.transform="rotateY("+zR+"deg)"}}});
 addEventListener("pageshow",e=>{if(e.persisted){fogMask();sinkCtl()}});
 addEventListener("resize",()=>{if(innerWidth===W0)return;W0=innerWidth;H0=innerHeight;layout(true);sinkCtl()});
 
