@@ -589,9 +589,13 @@ function coach(){
  T(()=>{if(finger){finger.remove();finger=null}c.style.transition=""},5500);
 }
 
-const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0;
+const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0,lastRun=0,vt=0;
+// 霧の時計は止めている間は進めない（本を戻した瞬間に霧が飛ばないように）
 function loop(ts){
- if(!calm)requestAnimationFrame(loop);if(ts-last<100||document.hidden||$("zoom").classList.contains("on"))return;last=ts;const t=ts/1000*P.speed;
+ if(!calm)requestAnimationFrame(loop);
+ if(document.hidden||$("zoom").classList.contains("on")){lastRun=0;return}
+ if(ts-last<100)return;last=ts;
+ vt+=lastRun?Math.min(ts-lastRun,200):0;lastRun=ts;const t=vt/1000*P.speed;
  const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;cfog.style.webkitMaskPosition=pos;cfog.style.maskPosition=pos;
  fis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n%3?-9:12))+"px "+(t*(n?2:-1.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundPosition=(t*(n?-5:6))+"px "+(t*(n?1:-.8))+"px"});
