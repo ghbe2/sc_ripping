@@ -474,7 +474,13 @@ function fogMask(){
  fis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(1.3+n%3*.5))+"px"});
  wis.forEach((i,n)=>{i.style.backgroundImage="url("+WS+")";i.style.backgroundSize=(S*(2+n))+"px"});
 }
-function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;c.classList.toggle("mv",!!anim);c.style.left=(p*(cw+G))+"px";c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
+// 並べ替えは left を直接アニメせず、transform で滑らせる（毎フレームのレイアウト計算をなくす）
+function slide(c,x,dur){const sr=stage.getBoundingClientRect(),r=c.getBoundingClientRect(),ox=r.left-sr.left,oy=r.top-sr.top;
+ c.classList.remove("mv");c.style.transition="none";c.style.left=x+"px";const dx=ox-x;
+ if(Math.abs(dx)<.5&&Math.abs(oy)<.5){c.style.transform="";return}
+ c.style.transform="translate("+dx+"px,"+oy+"px)";void c.offsetWidth;c.style.transition="transform "+dur+"s cubic-bezier(.3,.1,.2,1)";c.style.transform="";
+ clearTimeout(c._st);c._st=setTimeout(()=>{if(!(pt&&pt.c===c))c.style.transition=""},dur*1000+60)}
+function applyPos(anim){for(let p=0;p<7;p++){const c=cards[order[p]];c._p=p;const x=p*(cw+G);if(anim&&!(pt&&pt.c===c)&&c.style.visibility!=="hidden")slide(c,x,.3);else{c.classList.remove("mv");c.style.left=x+"px"}c.setAttribute("aria-label",SN[c._k].sin+" "+(c._fr?SN[c._k].v:SN[c._k].s))}}
 let H0=innerHeight,W0=innerWidth;
 ["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 // ボタンは最初の画面の外（下へスクロールすると霧の中から現れる）
@@ -518,7 +524,7 @@ function autoSolve(){
  const go=()=>{
   for(let p=0;p<7;p++){const want=tk(p);if(order[p]!==want){const c=cards[want];setBox(c,D*.4);order.splice(order.indexOf(want),1);order.splice(p,0,want);setTimeout(()=>applyPos(true),200);setTimeout(()=>setBox(c,0),650);return setTimeout(go,850)}}
   let n=0;for(let k=1;k<=7;k++)if(cards[k]._fr!==tfr(k)){flipTo(cards[k],tfr(k),n*140);n++}
-  setTimeout(()=>{solving=false;refresh(0)},n?1500+n*140:0);
+  setTimeout(()=>{solving=false;fogHold=false;refresh(0)},n?1500+n*140:0);
  };
  go();
 }
@@ -526,7 +532,7 @@ function autoSolve(){
  const openLow=()=>{ctl.classList.add("open");cfog.classList.add("open");clearTimeout(rt);rt=setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open")},6000)};
  ctl.addEventListener("click",e=>{if(ctl.classList.contains("open"))return;e.preventDefault();e.stopPropagation();openLow()},true);
  document.addEventListener("click",e=>{if(e.target.closest(".card,.zoom,.tune"))return;if(e.pageY>=parseFloat(cfog.style.top||1e9))openLow()});
- $("mode").onclick=()=>{if(solving||done())return;clearTimeout(rt);
+ $("mode").onclick=()=>{if(solving||done())return;clearTimeout(rt);fogHold=true;
   const t0=performance.now();scrollTo({top:0,behavior:"smooth"});
   const wait=()=>{if(scrollY>1&&performance.now()-t0<1800)return requestAnimationFrame(wait);setTimeout(()=>{ctl.classList.remove("open");cfog.classList.remove("open");autoSolve()},450)};
   requestAnimationFrame(wait)}}
@@ -549,7 +555,7 @@ stage.addEventListener("pointermove",e=>{
  const s=cw+G,x=Math.max(-cw*.4,Math.min(6*s+cw*.4,pt.ox+dx)),yy=Math.max(-46,Math.min(24,dy))-6,vx=e.clientX-pt.lx;pt.lx=e.clientX;
  c.style.left=x+"px";c.style.transform="translateY("+yy+"px) rotate("+Math.max(-5,Math.min(5,vx*.5))+"deg)";
  const cand=Math.max(0,Math.min(6,Math.round(x/s)));
- if(cand!==pt.slot&&Math.abs(x-cand*s)<s*.38){pt.slot=cand;const rest=order.filter(k=>k!==c._k);rest.splice(cand,0,c._k);rest.forEach((k,p)=>{if(k!==c._k){const o=cards[k];o.classList.add("mv");o.style.left=(p*s)+"px"}})}
+ if(cand!==pt.slot&&Math.abs(x-cand*s)<s*.38){pt.slot=cand;const rest=order.filter(k=>k!==c._k);rest.splice(cand,0,c._k);rest.forEach((k,p)=>{if(k!==c._k)slide(cards[k],p*s,.3)})}
 });
 const TAP_MS=260;
 function release(cancel){
@@ -596,11 +602,11 @@ function coach(){
  T(()=>{if(finger){finger.remove();finger=null}c.style.transition=""},5500);
 }
 
-const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0,lastRun=0,vt=0;
+const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;let last=0,lastRun=0,vt=0,fogHold=false;
 // 霧の時計は止めている間は進めない（本を戻した瞬間に霧が飛ばないように）
 function loop(ts){
  if(!calm)requestAnimationFrame(loop);
- if(document.hidden||$("zoom").classList.contains("on")){lastRun=0;return}
+ if(document.hidden||fogHold||$("zoom").classList.contains("on")){lastRun=0;return}
  if(ts-last<100)return;last=ts;
  vt+=lastRun?Math.min(ts-lastRun,200):0;lastRun=ts;const t=vt/1000*P.speed;
  const pos=(t*7)+"px "+(t*2.2)+"px,"+(-t*4.6)+"px "+(t*3.1)+"px,0 0";fog.style.webkitMaskPosition=pos;fog.style.maskPosition=pos;cfog.style.webkitMaskPosition=pos;cfog.style.maskPosition=pos;
