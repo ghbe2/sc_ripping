@@ -280,13 +280,14 @@ body:not(.manual) .mon{display:none}
 .bk.s .bs-ft{position:absolute;left:9%;right:7%;bottom:2%;display:flex;justify-content:space-between;font:7.5px/1 var(--serif);letter-spacing:.15em;color:#8f8272}
 @property --d{syntax:"<length>";inherits:true;initial-value:0px}
 @property --s{syntax:"<length>";inherits:true;initial-value:0px}
-.zfog{position:fixed;overflow:hidden;pointer-events:none;z-index:5;opacity:0;transition:opacity .45s ease}
-.zfog.on{opacity:1}
-.zfog .fog{inset:auto!important}
+.fogwrap{position:absolute;z-index:9;pointer-events:none}
+.book3d .f3{transition:opacity .35s ease}
+.book3d.fade .f3{opacity:0}
 </style></head><body>
 <div class="case">
  <div class="wds" id="wds"></div>
- <div class="stage" id="stage"><div class="fog" id="fog"><i></i><i></i><i></i></div><div class="lights" id="lights"></div></div>
+ <div class="stage" id="stage"><div class="lights" id="lights"></div></div>
+ <div class="fogwrap" id="fogwrap"><div class="fog" id="fog"><i></i><i></i><i></i></div></div>
  <div class="board"></div>
 </div>
 <p class="foot" id="foot"></p>
@@ -356,7 +357,7 @@ function bars(seed){let x=seed*9301+49297,o=[],p=0;for(let i=0;i<34;i++){x=(x*93
 function barcode(k,side){return '<div class="bc" style="--bars:'+bars(k*7+(side==="v"?3:5))+'"><i></i><span>ISBN 978-4-'+(side==="v"?"7":"9")+k+'-'+["","SVP","AVR","INV","IRA","LUX","GUL","ACD"][k]+'</span></div>'}
 function cover(k,side){
  const d=SN[k],isV=side==="v",src=isV?(HI?d.vimg:d.vimgS||d.vimg):(HI?d.simg:d.simgS||d.simg),pos=isV?d.vpos:d.spos,nm=isV?d.v:d.s,sy=PLN[k]+V,no=["","I","II","III","IV","V","VI","VII"][k];
- const img=src?'<img decoding="async" src="'+src+'" alt="" style="object-position:'+(pos||"50% 20%")+'">':'<div class="ph">絵は未着</div>';
+ const hi=isV?d.vimg:d.simg,img=src?'<img decoding="async" src="'+src+'" data-hi="'+hi+'" alt="" style="object-position:'+(pos||"50% 20%")+'">':'<div class="ph">絵は未着</div>';
  const name=esc(known(nm)?nm:"――");
  if(isV){
   const hd=d.vhead||"（見出し）",ex=d.vex||"（ストーリーの抜粋が二、三行入る）";
@@ -491,8 +492,9 @@ function layout(full){
  if(full){lights(false);ghosts()}
  // 霧は、本がいちばん手前に出たときより前の奥行きへ。遠近で大きく見える分は縮めて元の位置に重ねる
  const zF=D*.6+24,sc=z=>((1100-z)/1100);
- fog.style.transformOrigin=L.style.transformOrigin="50% "+(ch*.4)+"px";
- fog.style.transform="translateZ("+zF+"px) scale("+sc(zF)+")";
+ // 霧は棚の上に重ねた平面の層（本が手前に出ても、常に霧の向こう側）
+ const fw=$("fogwrap");Object.assign(fw.style,{left:stage.offsetLeft+"px",top:stage.offsetTop+"px",width:stage.clientWidth+"px",height:ch+"px"});
+ L.style.transformOrigin="50% "+(ch*.4)+"px";
  L.style.transform="translateZ("+(zF-1)+"px) scale("+sc(zF-1)+")";
  stage.style.setProperty("--fz",(zF+4)+"px");stage.style.setProperty("--fsc",sc(zF+4));
 }
@@ -552,11 +554,11 @@ stage.addEventListener("pointermove",e=>{
 const TAP_MS=260;
 function release(cancel){
  if(!pt)return;const p=pt,c=p.c;pt=null;
- c.style.zIndex=15;c.style.transition="transform .25s ease,left .25s ease";c.style.transform="";c.classList.remove("lift");setTimeout(()=>{c.style.transition="";c.style.zIndex=""},320);
+ c.style.zIndex=15;c.style.transition="transform .25s ease,left .25s ease";c.style.transform="";c.classList.remove("lift");setTimeout(()=>{if(zk!==c._k)c.style.transition="";c.style.zIndex=""},320);
  if(p.drag){
   if(!cancel){const rest=order.filter(k=>k!==c._k);rest.splice(p.slot,0,c._k);order.splice(0,7,...rest)}
   setBox(c,0,false,.25);applyPos(true);if(!cancel){refresh();settleNew(p.was,COIN_DELAY)}
- }else if(!cancel&&performance.now()-p.t0<=TAP_MS){openZ(c._k);setTimeout(()=>setBox(c,0,false,.25),250)}
+ }else if(!cancel&&performance.now()-p.t0<=TAP_MS){openZ(c._k);if(zk!==c._k)setBox(c,0,false,.25)}
  else setBox(c,0,false,.25);
 }
 stage.addEventListener("pointerup",()=>release(false));stage.addEventListener("pointercancel",()=>release(true));
@@ -618,43 +620,51 @@ if(location.hash==="#tune"){
 // 手に取る／戻す：画面に見えている背表紙の大きさ・位置から連続して飛ぶ
 function fit3(c,fr,Hh){const bf=book.querySelector(fr?".spv":".sps"),cf=c.querySelector(c._fr?".spv":".sps"),br=bf.getBoundingClientRect(),cr=cf.getBoundingClientRect(),k=br.height/Hh;
  return{s:cr.height/br.height,dx:((cr.left+cr.width/2)-(br.left+br.width/2))/k,dy:((cr.top+cr.height/2)-(br.top+br.height/2))/k}}
+// 手に取る／戻す：移動はすべて棚の中（霧の向こう）で行い、拡大した状態でだけ霧のない手元の本に入れ替える
+const ZE="cubic-bezier(.4,0,.2,1)";
+function hiImgs(c,on){c.querySelectorAll("img[data-hi]").forEach(i=>{if(on){if(!i.dataset.lo)i.dataset.lo=i.src;i.src=i.dataset.hi}else if(i.dataset.lo){i.src=i.dataset.lo;delete i.dataset.lo}})}
+function cardTr(c,on,dur){const b=c.firstChild,t=on?"transform "+dur+"s "+ZE+",--d "+dur+"s "+ZE:"none";c.style.transition=t;b.style.transition=on?"transform "+dur+"s "+ZE:"none"}
+// 手元の本（拡大）と同じ見え方になる、棚の本の姿勢
+function bigPose(c,theta){
+ const Hh=parseFloat(book.style.height),Dz=parseFloat(book.style.getPropertyValue("--d"));
+ const cur=book.style.transform;book.style.transform="none";const br=book.getBoundingClientRect();book.style.transform=cur;
+ const t0=c.style.transform;c.style.transform="none";const cr=c.getBoundingClientRect();c.style.transform=t0;
+ const k=Hh/cr.height,Dc=Dz/k;
+ c.style.setProperty("--d",Dc+"px");
+ c.style.transform="translate3d("+((br.left+br.width/2)-(cr.left+cr.width/2))+"px,"+((br.top+br.height/2)-(cr.top+cr.height/2))+"px,"+(Dz/2)+"px) scale3d("+k+","+k+","+k+")";
+ c.firstChild.style.transform="translateZ("+(-Dc/2)+"px) rotateY("+theta+"deg)";
+}
+function homePose(c,rot){c.style.setProperty("--d",D+"px");c.style.transform="";c.firstChild.style.transform="translateZ("+(-D/2)+"px) rotateY("+rot+"deg)"}
+function matchPersp(){const zs=book.parentElement,st=stage.getBoundingClientRect(),zr=zs.getBoundingClientRect();zs.style.perspective="1100px";zs.style.perspectiveOrigin=(st.left+st.width*.5-zr.left)+"px "+(st.top+st.height*.4-zr.top)+"px"}
 function openZ(k){if(!cards[k]._own){rock(cards[k],false);return}
- const c=cards[k];zk=k;const Hh=Math.min(innerHeight*.56,520),S=Math.max(46,Hh/8),Dz=Math.min(Hh*.7,innerWidth*.84),z=$("zoom"),tot=Hh*1.16+96;
+ const z=$("zoom");if(z.classList.contains("on"))return;
+ const c=cards[k];zk=k;const Hh=Math.min(innerHeight*.56,520),S=Math.max(46,Hh/8),Dz=Math.min(Hh*.7,innerWidth*.84),tot=Hh*1.16+96;
  z.style.setProperty("--zh",Hh+"px");z.style.setProperty("--zt",Math.max(60,(innerHeight-tot)/2+Hh*.08)+"px");
- book.style.cssText="width:"+S+"px;height:"+Hh+"px;--s:"+S+"px;--d:"+Dz+"px;--capf:14px;--cs:"+(S*.34)+"px";
- HI=true;book.innerHTML=faces(k);HI=false;paint(book,k,S,Hh*.3/6);fitLines();
- zR=c._fr?0:180;
- book.style.transition="none";book.style.transform="rotateY("+zR+"deg)";z.classList.remove("closing");z.classList.add("on");
- const g=fit3(c,c._fr,Hh);
- book.style.transform="translate("+g.dx+"px,"+g.dy+"px) scale("+g.s+") rotateY("+zR+"deg)";void book.offsetWidth;
- c.style.visibility="hidden";
- book.style.transition="transform .6s cubic-bezier(.2,.75,.2,1)";book.style.transform="rotateY("+zR+"deg)";
- setTimeout(()=>{if(zk===k&&!zd)book.style.transition=""},640);
- const r0=zR,cl0=()=>$("zoom").classList.contains("closing");setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0()){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0())book.style.transform="rotateY("+zR+"deg)"},650)}},950);
+ book.style.cssText="width:"+S+"px;height:"+Hh+"px;--s:"+S+"px;--d:"+Dz+"px;--capf:14px;--cs:"+(S*.34)+"px";book.className="book3d fade";
+ HI=true;book.innerHTML=faces(k);HI=false;paint(book,k,S,Hh*.3/6);
+ zR=c._fr?0:180;book.style.transition="none";book.style.transform="rotateY("+zR+"deg)";
+ z.classList.add("closing");z.classList.add("on");matchPersp();fitLines();
+ // 棚の本が霧の向こうを通って手元まで出てくる
+ hiImgs(c,true);c.classList.remove("mv");cardTr(c,true,.6);void c.offsetWidth;bigPose(c,c._R);
+ setTimeout(()=>{if(zk!==k)return;z.classList.remove("closing");book.classList.remove("fade");
+  setTimeout(()=>{if(zk!==k)return;c.style.visibility="hidden";cardTr(c,false);homePose(c,c._R);hiImgs(c,false)},380)},600);
+ const r0=zR,cl0=()=>$("zoom").classList.contains("closing");setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0()){book.style.transform="rotateY("+(zR-22)+"deg)";setTimeout(()=>{if(zk===k&&zR===r0&&!zd&&!cl0())book.style.transform="rotateY("+zR+"deg)"},650)}},1550);
 }
 function closeZ(){
- const z=$("zoom");if(!z.classList.contains("on")||!zk||z.classList.contains("closing"))return;const k=zk,c=cards[k];
- const a=((zR%360)+360)%360,fr=a===0||a===270,base=fr?0:180,zT=Math.round((zR-base)/360)*360+base;
- const Hh=parseFloat(book.style.height)||400,zs=book.parentElement;
- // 戻り先の棚と同じ見え方（遠近・奥行き・位置）で着地させ、入れ替わりを見えなくする
- const st=stage.getBoundingClientRect(),zr=zs.getBoundingClientRect(),cr=c.getBoundingClientRect();
- zd=null;const cur=getComputedStyle(book).transform;book.style.transition="none";book.style.transform="none";const br=book.getBoundingClientRect();book.style.transform=cur==="none"?"rotateY("+zR+"deg)":cur;void book.offsetWidth;
- const s=cr.height/Hh,dx=(cr.left+cr.width/2)-(br.left+br.width/2),dy=(cr.top+cr.height/2)-(br.top+br.height/2);
- zs.style.transition="perspective .55s cubic-bezier(.4,0,.2,1),perspective-origin .55s cubic-bezier(.4,0,.2,1)";
- zs.style.perspective="1100px";zs.style.perspectiveOrigin=(st.left+st.width*.5-zr.left)+"px "+(st.top+st.height*.4-zr.top)+"px";
- z.classList.add("closing");
- book.style.transition="transform .55s cubic-bezier(.4,0,.2,1),--d .55s cubic-bezier(.4,0,.2,1),--s .55s cubic-bezier(.4,0,.2,1)";
- book.style.setProperty("--d",(D/s)+"px");book.style.setProperty("--s",(cr.width/s)+"px");
- book.style.transform="translate3d("+dx+"px,"+dy+"px,"+(-D/2)+"px) scale3d("+s+","+s+","+s+") rotateY("+zT+"deg)";
- // 棚の霧の写しを、戻っていく本の上にだけ重ねてゆっくり濃くする（着地した時には本物の霧と同じ）
- const fr2=fog.getBoundingClientRect(),zf=document.createElement("div");zf.className="zfog";
- Object.assign(zf.style,{left:fr2.left+"px",top:fr2.top+"px",width:fr2.width+"px",height:fr2.height+"px"});
- const cl=fog.cloneNode(true);cl.removeAttribute("id");Object.assign(cl.style,{left:"0",top:"0",width:fr2.width+"px",height:fr2.height+"px",right:"auto",bottom:"auto"});
- zf.appendChild(cl);z.appendChild(zf);fog.style.transition="none";fog.style.visibility="hidden";void zf.offsetWidth;zf.classList.add("on");
+ const z=$("zoom");if(!z.classList.contains("on")||!zk||z.classList.contains("closing"))return;const k=zk,c=cards[k];zd=null;
+ // 今見えている向き（回転の途中でも）をそのまま引き継ぐ
+ const m=getComputedStyle(book).transform;let th=zR;
+ if(m&&m!=="none"){const v=m.match(/-?[\d.e]+/g).map(Number),is3=m.startsWith("matrix3d"),a0=v[0],s0=is3?v[2]:0;th=Math.atan2(-s0,a0)*180/Math.PI;th+=Math.round((zR-th)/360)*360}
+ const a=((th%360)+360)%360,fr=a<90||a>=270,base=fr?0:180,zT=Math.round((th-base)/360)*360+base;
+ book.style.transition="none";book.style.transform="rotateY("+th+"deg)";void book.offsetWidth;
+ // 同じ姿勢の棚の本を霧の向こうに置き、手元の本を消しながら暗幕を上げる
+ cardTr(c,false);hiImgs(c,true);bigPose(c,th);c.style.visibility="";void c.offsetWidth;
+ z.classList.add("closing");book.classList.add("fade");
  const was=snap(),changed=c._fr!==fr;
- setTimeout(()=>{c._fr=fr;c._R=fr?0:180;setBox(c,0,true);c.style.visibility="";zk=0;
-  z.style.transition="none";z.classList.remove("on");z.classList.remove("closing");fog.style.visibility="";zf.remove();requestAnimationFrame(()=>{fog.style.transition=""});book.style.transition="";zs.style.transition="";zs.style.perspective="";zs.style.perspectiveOrigin="";void z.offsetWidth;z.style.transition="";
-  if(changed){applyPos(false);refresh(300);settleNew(was,COIN_DELAY)}},570);
+ setTimeout(()=>{cardTr(c,true,.55);homePose(c,zT);
+  setTimeout(()=>{zk=0;z.style.transition="none";z.classList.remove("on");z.classList.remove("closing");void z.offsetWidth;z.style.transition="";book.style.transition="";book.classList.remove("fade");
+   cardTr(c,false);c._fr=fr;c._R=fr?0:180;setBox(c,0,true);setTimeout(()=>hiImgs(c,false),800);
+   if(changed){applyPos(false);refresh(300);settleNew(was,COIN_DELAY)}},570)},380);
 }
 book.addEventListener("pointerdown",e=>{if($("zoom").classList.contains("closing"))return;zd={x:e.clientX,y:e.clientY,r:zR};try{book.setPointerCapture(e.pointerId)}catch(_){}book.style.transition="none"});
 book.addEventListener("pointermove",e=>{if(zd)book.style.transform="rotateY("+(zd.r+(e.clientX-zd.x)*.45)+"deg)"});
